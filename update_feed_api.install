@@ -1,0 +1,143 @@
+<?php
+
+function update_feed_api_install() {
+  drupal_install_schema('update_feed_api');
+}
+
+function update_feed_api_schema() {
+  return _update_feed_api_get_schema();
+}
+
+function _update_feed_api_get_schema() {
+  $schema['update_feed_api_projects'] = array(
+    'description' => 'Stores projects',
+    'fields' => array(
+      'server_key' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'default' => '',
+        'not null' => TRUE,
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'default' => '',
+        'not null' => TRUE,        
+      ),
+      'short_name' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'default' => '',
+      ),
+      'api_version' => array(
+        'type' => 'varchar',
+        'length' => '3',
+        'default' => '',
+      ),
+      'recommended_major' => array(
+        'type' => 'varchar',
+        'length' => '4',
+        'default' => '',
+      ),
+      'supported_majors' => array(
+        'type' => 'varchar',
+        'length' => '4',
+        'default' => '',
+      ),
+      'default_major' => array(
+        'type' => 'varchar',
+        'length' => '4',
+        'default' => '',
+      ),
+      'project_status' => array(
+        'type' => 'varchar',
+        'length' => '4',
+        'default' => '',
+      ),
+      'link' => array(
+        'type' => 'varchar',
+        'length' => '4',
+        'default' => '',
+      ),
+      'terms' => array(
+        'type' => 'longtext',
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('short_name', 'server_key'),
+  );
+   $schema['update_feed_api_releases'] = array(
+    'description' => 'Stores releases',
+    'fields' => array(
+      'server_key' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'default' => '',
+        'not null' => TRUE,
+      ),
+      'project_short_name' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'default' => '',
+        'not null' => TRUE,        
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'default' => '',
+        'not null' => TRUE,        
+      ),
+      'version' => array(
+        'type' => 'varchar',
+        'length' => '15',
+        'default' => '',
+      ),
+      'tag' => array(
+        'type' => 'varchar',
+        'length' => '15',
+        'default' => '',
+      ),
+      'version_major' => array(
+        'type' => 'varchar',
+        'length' => '4',
+        'default' => '',
+      ),
+      'version_extra' => array(
+        'type' => 'varchar',
+        'length' => '15',
+        'default' => '',
+      ),
+      'status' => array(
+        'type' => 'varchar',
+        'length' => '40',
+        'default' => '',
+      ),
+      'release_link' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'default' => '',
+      ),
+      'download_link' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'default' => '',
+      ),
+      'date' => array(
+        'type' => 'varchar',
+        'length' => '15',
+        'default' => '',
+      ),
+      'mdhash' => array(
+        'type' => 'varchar',
+        'length' => '50',
+        'default' => '',
+      ),
+      'terms' => array(
+        'type' => 'longtext',
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('name', 'project_short_name', 'server_key'),
+  );
+  return $schema;
+}

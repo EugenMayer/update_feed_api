@@ -1,1 +1,22 @@
+<?php
 
+/**
+ * Implementation of hook_autoload_info().
+ */
+function update_feed_api_autoload_info() {
+  $path = 'includes';
+  return array(
+    'FeedEntryContainer' => array(
+      'file' => 'feedentrycontainer.class.inc',
+      'file path' => $path,
+    ),
+    'Project' => array(
+      'file' => 'project.class.inc',
+      'file path' => $path,
+    ),
+     'Release' => array(
+      'file' => 'release.class.inc',
+      'file path' => $path,
+    ),
+  );
+}
