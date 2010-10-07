@@ -1,0 +1,7 @@
+- think about several entries of one project in the project tables due to different APIs. Should that stay?
+- implement feature-server feed fetcher ( URLs seem not to match )
+- Implement batch runs on the feed fetched ( so we need somehow ranges )
+- implement a hook to refresh all feeds, maybe only fetch new if a timelimit is reached or cache cleared
+- implement project updating rather then always recreating (same for releases)
+- implement cron runs for cleanups
+

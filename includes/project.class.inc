@@ -32,8 +32,17 @@ class Project extends FeedEntryContainer {
     return $this->server_key;
   }
   
+  public function save() {
+    parent::save();
+    // and now save all releases
+    foreach($this->releases as $release) {
+      $release->save();
+    }
+  }
   protected function validate_terms($terms)  {
+    // TODO: is this required?
     $req = array ( 'Projects' );
+    $req = array ();
     $diff = array_diff($req, array_keys($terms));
     if (count($diff) >0 ) {
       throw new Exception('Not all required terms set from project. Missing: ('.join(',',$diff).')');

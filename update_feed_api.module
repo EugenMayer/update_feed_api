@@ -26,6 +26,15 @@ function update_feed_api_autoload_info() {
       'file' => 'factories.class.inc',
       'file path' => $path,
     ),
+    'SmartDOMDocument' => array(
+      'file' => 'smartdomdocument.class.inc',
+      'file path' => $path,
+    ),
+    'Update_feed' => array(
+      'file' => 'update_feed.class.inc',
+      'file path' => $path,
+    ),
+    
   );
 }
 
@@ -39,78 +48,8 @@ function update_feed_api_menu() {
 }
 
 function _update_feed_api_test() {
-  // Create test
-  // 
-  if(false) {
-    $server_key = 'testserver';
-    $infos = array(
-      'title' => 'Signup',
-      'short_name' => 'signup',
-      'api_version' => '6.x',
-      'recommended_major' => '1',
-      'supported_majors' => '1',
-      'default_major' => '1',
-      'project_status' => 'published',
-      'link' => 'http://drupal.org/project/signup',
-    );
-    $terms = array(
-      'Projects' => 'module'
-    );
-    $project = new Project($infos, $terms, $server_key);
-    $project->save();
-  }
-  
-  // Project Load test
-  if(true) {
-    $project = Project_factory::load_project('testserver','signup');
-    if($project == FALSE) {
-      drupal_set_message("could not load project",'warning');
-      return '';
-    }
-    $releases = $project->get_release();
-    if(count($releases) > 0) {
-      $release = array_pop($releases);
-      drupal_set_message($release->get_info('name'));
-      //$release->set_info('name','Test');
-      //$release->save();
-    }
-  }
-  
-  // Project Update test
-  if(false) {
-    $project->set_info('api_version', '7.x');
-    $project->save();
-  }
-  
-  // Release add test
-  if(false) {
-    $infos = array(
-      'name' => 'signup 6.x-2.x-dev',
-      'version' => '6.x-2.x-dev',
-      'tag' => 'DRUPAL-6--2',
-      'version_major' => '2',
-      'version_extra' => 'dev',
-      'status' => 'published',
-      'release_link' => 'http://drupal.org/node/346809',
-      'download_link' => 'http://ftp.drupal.org/files/projects/signup-6.x-2.x-dev.tar.gz',
-      'date' => '1286354907',
-      'mdhash' => '887df55341b48d2ce676fe81fe6a21a6',
-      'filesize' => '196511',
-    );
-    $terms = array(
-      'Release type' => 'New features'
-    );
-    $release = new Release($infos, $terms, $project);
-    $release->save();
-  }
-  
-    // Project Load test
-  if(true) {
-    $release = Release_factory::load_by_rid(1, $project);
-    if($release == FALSE) {
-      drupal_set_message("could not load releaese",'warning');
-      return '';
-    }
-  }
+  $feed = new Update_feed('http://updates.drupal.org','drupal_org');
+  $feed->fetch();
+  $feed->save();
   return '';
 }
