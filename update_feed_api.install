@@ -24,11 +24,11 @@ function _update_feed_api_get_schema() {
       ),
       'server_key' => array(
         'type' => 'varchar',
-        'length' => '255',
+        'length' => '20',
         'default' => '',
         'not null' => TRUE,
       ),
-      'name' => array(
+      'title' => array(
         'type' => 'varchar',
         'length' => '255',
         'default' => '',
@@ -36,7 +36,7 @@ function _update_feed_api_get_schema() {
       ),
       'short_name' => array(
         'type' => 'varchar',
-        'length' => '255',
+        'length' => '50',
         'default' => '',
       ),
       'api_version' => array(
@@ -61,12 +61,12 @@ function _update_feed_api_get_schema() {
       ),
       'project_status' => array(
         'type' => 'varchar',
-        'length' => '4',
+        'length' => '40',
         'default' => '',
       ),
       'link' => array(
         'type' => 'varchar',
-        'length' => '4',
+        'length' => '255',
         'default' => '',
       ),
       'terms' => array(
@@ -76,7 +76,7 @@ function _update_feed_api_get_schema() {
       ),
     ),
     'primary key' => array('pid'),
-    'unique keys' => array('server_relation' =>  array( 'short_name', 'server_key') ),
+    //'unique keys' => array('server_relation' =>  array( 'short_name', 'server_key') ),
   );
   $schema['update_feed_api_releases'] = array(
     'description' => 'Stores releases',
@@ -89,13 +89,13 @@ function _update_feed_api_get_schema() {
       ),
       'server_key' => array(
         'type' => 'varchar',
-        'length' => '255',
+        'length' => '30',
         'default' => '',
         'not null' => TRUE,
       ),
       'project_short_name' => array(
         'type' => 'varchar',
-        'length' => '255',
+        'length' => '30',
         'default' => '',
         'not null' => TRUE,
       ),
@@ -154,8 +154,8 @@ function _update_feed_api_get_schema() {
         'serialize' => TRUE
       ),
     ),
-    'primary key' => array('rid'),
-    'unique keys' => array('project_relation' => array('name', 'project_short_name', 'server_key') ),
+    'primary key' => array('rid',),
+    //'unique keys' => array('project_relation' => array('name', 'project_short_name', 'server_key') ),
   );
   return $schema;
 }

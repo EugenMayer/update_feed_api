@@ -4,7 +4,7 @@
  * Implementation of hook_autoload_info().
  */
 function update_feed_api_autoload_info() {
-  $path = 'includes';
+  $path = drupal_get_path('module','update_feed_api').'/includes/';
   return array(
     'FeedEntryContainer' => array(
       'file' => 'feedentrycontainer.class.inc',
@@ -14,8 +14,12 @@ function update_feed_api_autoload_info() {
       'file' => 'project.class.inc',
       'file path' => $path,
     ),
-     'Release' => array(
+    'Release' => array(
       'file' => 'release.class.inc',
+      'file path' => $path,
+    ),
+    'Project_factory' => array(
+      'file' => 'factories.class.inc',
       'file path' => $path,
     ),
   );
@@ -42,6 +46,14 @@ function _update_feed_api_test() {
     'project_status' => 'published',
     'link' => 'http://drupal.org/project/signup',
   );
-  $terms = array();
-  $project = new Project($info, $terms, $server_key);
+  $terms = array(
+    'Projects' => 'module'
+  );
+  /*$project = new Project($info, $terms, $server_key);
+  $project->save();*/
+  
+  $project = Project_factory::load_project('testserver','signup');
+  $project->set_info('api_version', '7.x');
+  $project->save();
+  return '';
 }

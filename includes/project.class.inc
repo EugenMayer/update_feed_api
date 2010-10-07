@@ -6,17 +6,13 @@ class Project extends FeedEntryContainer {
   protected $server_key = NULL;
   public function __construct($info, $terms, $server_key) {
     // title, short_name, api_version, recommended_version, supported_major_default_major, project_status, link
-    parent::__construct( $info, $terms);
+    parent::__construct($info, $terms);
+    $this->dest_table = 'update_feed_api_projects';
     $this->server_key = $server_key;
   }
   
   public function add_release($info, $terms) {
-    if(in_array("Release", class_parents(get_class($release))) {
-      $this->releases[$info['date']] = new Release($info, $terms, $this);
-    }
-    else {
-      throw new Exception("Cant add release, does not inherit from Release!");
-    }
+    $this->releases[$info['date']] = new Release($info, $terms, $this);
   }
   
   public function server_key() {
@@ -25,20 +21,31 @@ class Project extends FeedEntryContainer {
   
   protected function validate_terms($terms)  {
     $req = array ( 'Projects' );
-    if(!$this->array_keys_exists($req, $terms)) {
-      throw new Exception('Not all required terms set from project. Required: ('.join(',',$req).')');
+    $diff = array_diff($req, array_keys($terms));
+    if (count($diff) >0 ) {
+      throw new Exception('Not all required terms set from project. Missing: ('.join(',',$diff).')');
     }
   }
   
-  protected function validate_info($info) {
-    $req = array ( 'title', 'short_name', 'api_version', 'recommended_version', 'supported_majors', 
+  protected function validate_info($infos) {
+    $req = array ( 'title', 'short_name', 'api_version', 'recommended_major', 'supported_majors', 
                   'default_major', 'project_status', 'link',);
-    if(!$this->array_keys_exists($req, $info)) {
-      throw new Exception('Not all required infos set from project. Required: ('.join(',',$req).')');
+    $diff = array_diff($req, array_keys($infos));
+    if (count($diff) >0 ) {
+      throw new Exception('Not all required infos set from project. Missing: ('.join(',',$diff).')');
     }
   }
+  
   protected function add_db_field(&$fields) {
     $fields['server_key'] = $this->server_key();
     parent::add_db_field($fields);
+  }
+  
+  protected function get_primary_key(&$fields) {
+    if(array_key_exists('pid', $fields)) {
+      return 'pid';
+    }
+    // else
+    return FALSE;
   }
 }

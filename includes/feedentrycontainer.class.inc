@@ -33,6 +33,14 @@ abstract class FeedEntryContainer {
     return FALSE;
   }
   
+  public function set_info($key, $value) {
+    $this->info[$key] = $value;
+  }
+  
+  public function set_term($key, $value) {
+    $this->terms[$key] = $value;
+  }
+  
   // A little function which take an array as keys
   protected function array_keys_exists($keys, $array) {
     foreach($keys as $k) {
@@ -46,21 +54,21 @@ abstract class FeedEntryContainer {
   // A little function which take an array as keys
   public function save() {
     if($this->dest_table == NULL) {
-      throw new Exception("Your implementation({get_class($this)}) of FeedEntryContainer does not set dest_table! "); 
+      throw new Exception("Your implementation(".get_class($this).") of FeedEntryContainer does not set dest_table! "); 
     }
-    if(!dbtng_table_exists($this->dest_table)) {
-      throw new Exception("Table {$this->dest_table} does not exists,  cant save {get_class($this)}");
-    }
-    
     $fields = $this->info;
-    
-    foreach(array_keys($fields) as $field) {
-        if(! dbtng_field_exists($this->dest_table, $field) ) {
-          throw new Exception("Field '$field' does not exist in table '{$this->dest_table}', cant save {get_class($this)}");
-        }
-    }
+    $this->add_db_field($fields);
+    $prim_key = $this->get_primary_key($fields);
     // finally we are free to go
-    db_insert($this->dest_table)->fields($fields)->execute();
+    if($prim_key !== FALSE) {
+        // primary key is set, so update
+        $value = $fields[$prim_key];
+        unset( $fields[$prim_key]);
+        db_update($this->dest_table)->fields($fields)->condition( $prim_key, $value )->execute();
+    }
+    else {
+      db_insert($this->dest_table)->fields($fields)->execute();
+    }
   }
   
   protected function add_db_field(&$fields) {
@@ -69,4 +77,5 @@ abstract class FeedEntryContainer {
   
   abstract protected function validate_terms($terms);
   abstract protected function validate_info($info);
+  abstract protected function get_primary_key(&$fields);
 }
