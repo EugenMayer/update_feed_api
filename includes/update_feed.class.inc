@@ -57,6 +57,7 @@ class Update_feed {
       // on one sever, the short_name is unique
       $this->projects_shortinfo[$project_shortinfo['short_name']] = $project_shortinfo;
       
+      // TODO: remove this, we only fetch 3 projects at max right now
       $i++;
       if($i > 2) {
         return '';
