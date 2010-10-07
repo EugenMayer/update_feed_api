@@ -4,6 +4,10 @@ function update_feed_api_install() {
   drupal_install_schema('update_feed_api');
 }
 
+function update_feed_api_uninstall() {
+  drupal_uninstall_schema('update_feed_api');
+}
+
 function update_feed_api_schema() {
   return _update_feed_api_get_schema();
 }
@@ -12,6 +16,12 @@ function _update_feed_api_get_schema() {
   $schema['update_feed_api_projects'] = array(
     'description' => 'Stores projects',
     'fields' => array(
+      'pid' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
       'server_key' => array(
         'type' => 'varchar',
         'length' => '255',
@@ -64,11 +74,18 @@ function _update_feed_api_get_schema() {
         'default' => '',
       ),
     ),
-    'primary key' => array('short_name', 'server_key'),
+    'primary key' => array('pid'),
+    'unique key' => array('server_relation' =>  array( 'short_name', 'server_key') ),
   );
    $schema['update_feed_api_releases'] = array(
     'description' => 'Stores releases',
     'fields' => array(
+      'rid' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
       'server_key' => array(
         'type' => 'varchar',
         'length' => '255',
@@ -137,7 +154,8 @@ function _update_feed_api_get_schema() {
         'default' => '',
       ),
     ),
-    'primary key' => array('name', 'project_short_name', 'server_key'),
+    'primary key' => array('pid'),
+    'unique key' => array('project_relation' => array('name', 'project_short_name', 'server_key') ),
   );
   return $schema;
 }
