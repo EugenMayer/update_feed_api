@@ -5,14 +5,12 @@ abstract class FeedEntryContainer {
   protected $dest_table = NULL;
   protected $info = array();
   protected $terms = array();
-  protected $server_key = '';
-  public function __construct($server_key, $info, $terms) {
+  public function __construct($info, $terms) {
     // validate methods should throw exceptions, so we dont need conditions
     $this->validate_info($info);
     $this->validate_terms($terms);
     
     // validations passed, so proceed
-    $this->server_key = $server_key;
     $this->info = $info;
     $this->terms = $terms;
   }
@@ -45,7 +43,7 @@ abstract class FeedEntryContainer {
     return true;
   }
   
-    // A little function which take an array as keys
+  // A little function which take an array as keys
   public function save() {
     if($this->dest_table == NULL) {
       throw new Exception("Your implementation({get_class($this)}) of FeedEntryContainer does not set dest_table! "); 
@@ -55,9 +53,6 @@ abstract class FeedEntryContainer {
     }
     
     $fields = $this->info;
-    // add the terms serialized
-    $fields['terms'] = serialize($this->terms);
-    $fields['server_key'] = $server_key;
     
     foreach(array_keys($fields) as $field) {
         if(! dbtng_field_exists($this->dest_table, $field) ) {
@@ -66,6 +61,10 @@ abstract class FeedEntryContainer {
     }
     // finally we are free to go
     db_insert($this->dest_table)->fields($fields)->execute();
+  }
+  
+  protected function add_db_field(&$fields) {
+    $fields['terms'] = serialize($this->terms);
   }
   
   abstract protected function validate_terms($terms);

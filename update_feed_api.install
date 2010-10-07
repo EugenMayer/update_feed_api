@@ -22,7 +22,7 @@ function _update_feed_api_get_schema() {
         'type' => 'varchar',
         'length' => '255',
         'default' => '',
-        'not null' => TRUE,        
+        'not null' => TRUE,
       ),
       'short_name' => array(
         'type' => 'varchar',

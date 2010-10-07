@@ -20,3 +20,28 @@ function update_feed_api_autoload_info() {
     ),
   );
 }
+
+function update_feed_api_menu() {
+  return array(
+    'update_feed_api_test' => array(
+       'page callback' => '_update_feed_api_test',
+       'access callback' => TRUE
+    ),
+  );
+}
+
+function _update_feed_api_test() {
+  $server_key = 'testserver';
+  $info = array(
+    'title' => 'Signup',
+    'short_name' => 'signup',
+    'api_version' => '6.x',
+    'recommended_major' => '1',
+    'supported_majors' => '1',
+    'default_major' => '1',
+    'project_status' => 'published',
+    'link' => 'http://drupal.org/project/signup',
+  );
+  $terms = array();
+  $project = new Project($info, $terms, $server_key);
+}
