@@ -4,15 +4,28 @@
 class Project extends FeedEntryContainer {
   protected $releases = array();
   protected $server_key = NULL;
-  public function __construct($info, $terms, $server_key) {
+  public function __construct($infos, $terms, $server_key, $load_release = TRUE) {
     // title, short_name, api_version, recommended_version, supported_major_default_major, project_status, link
-    parent::__construct($info, $terms);
+    parent::__construct($infos, $terms);
     $this->dest_table = 'update_feed_api_projects';
     $this->server_key = $server_key;
+    // if we should load release and we have a primary key already
+    // (project loaded from the DB) load all releases
+    if(($load_release) && $this->get_primary_key($this->infos)) {
+      $this->load_releases();
+    };
   }
   
-  public function add_release($info, $terms) {
-    $this->releases[$info['date']] = new Release($info, $terms, $this);
+  public function add_release($infos, $terms) {
+    $this->releases[$info['date']] = new Release($infos, $terms, $this);
+  }
+  
+  public function get_release($date = NULL) {
+    if($date != NULL) {
+      $this->releases[$date];
+    }
+    // else
+    return $this->releases;
   }
   
   public function server_key() {
@@ -27,7 +40,7 @@ class Project extends FeedEntryContainer {
     }
   }
   
-  protected function validate_info($infos) {
+  protected function validate_infos($infos) {
     $req = array ( 'title', 'short_name', 'api_version', 'recommended_major', 'supported_majors', 
                   'default_major', 'project_status', 'link',);
     $diff = array_diff($req, array_keys($infos));
@@ -42,10 +55,27 @@ class Project extends FeedEntryContainer {
   }
   
   protected function get_primary_key(&$fields) {
-    if(array_key_exists('pid', $fields)) {
+    if (array_key_exists('pid', $fields)) {
       return 'pid';
     }
     // else
     return FALSE;
+  }
+  
+  protected function load_releases() {
+    $prim_key = $this->get_primary_key($this->infos);
+    
+    $query = db_select('update_feed_api_releases','ufar');
+    $query->condition( 'server_key', $this->server_key);
+    $query->condition( 'project_short_name', $this->infos['short_name'] );
+    $query->fields('ufar', array('rid') );
+    
+    $result = $query->execute();
+
+    //if($result == NULL)
+    foreach($result as $record) {
+      $release = Release_factory::load_by_rid($record->rid, $this);
+      $this->releases[$release->get_info('date')] = $release;
+    }
   }
 }

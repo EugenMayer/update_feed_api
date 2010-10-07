@@ -4,7 +4,8 @@ class Release extends FeedEntryContainer{
   protected $parent_project = NULL;
   public function __construct($info, $terms, $project) {
     parent::__construct($info, $terms);
-    $this->project = $project;
+    $this->parent_project = $project;
+    $this->dest_table = 'update_feed_api_releases';
   }
   
   protected function validate_terms($terms)  {
@@ -14,10 +15,10 @@ class Release extends FeedEntryContainer{
       throw new Exception('Not all required terms set from release. Missing: ('.join(',',$diff).')');
     }
   }
-  protected function validate_info($info) {
+  protected function validate_infos($infos) {
     $req = array ( 'name', 'version', 'tag', 'version_major', 'version_extra', 
                   'status', 'release_link', 'download_link', 'date', 'mdhash', 'filesize' );
-    $diff = array_diff($req, array_keys($info));
+    $diff = array_diff($req, array_keys($infos));
     if (count($diff) >0 ) {
       throw new Exception('Not all required infos set from release. Missing: ('.join(',',$diff).')');
     }

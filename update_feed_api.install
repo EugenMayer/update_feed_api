@@ -141,9 +141,15 @@ function _update_feed_api_get_schema() {
         'default' => '',
       ),
       'date' => array(
-        'type' => 'datetime',
+        'type' => 'varchar',
+        'length' => '30',
       ),
       'mdhash' => array(
+        'type' => 'varchar',
+        'length' => '50',
+        'default' => '',
+      ),
+      'filesize' => array(
         'type' => 'varchar',
         'length' => '50',
         'default' => '',

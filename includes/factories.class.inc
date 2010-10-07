@@ -1,29 +1,29 @@
 <?php
 
 class Project_factory {
-  static public function load_project_by_pid($pid) {
-    $query = db_select('update_feed_api_projects','ufa');
-    $query->conditions(array('ufa.pid' => $pid));
-    $query->fields('ufa');
+  static public function load_by_pid($pid) {
+    $query = db_select('update_feed_api_projects','ufap');
+    $query->conditions(array('ufap.pid' => $pid));
+    $query->fields('ufap');
     $result = $query->execute();
+    $result = $result->fetchAssoc();
     if($result == NULL) {
       return FALSE;
     }
-    $result = $result->fetchAssoc();
-    
     return self::init_from_db($result);
   }
   
   static public function load_project($server_key, $short_name) {
-    $query = db_select('update_feed_api_projects','ufa');
-    $query->conditions( array('ufa.server_key' => $server_key,'ufa.short_name' => $short_name));
-    $query->fields('ufa',array('pid'));
+    $query = db_select('update_feed_api_projects','ufap');
+    $query->conditions( array('ufap.server_key' => $server_key,'ufap.short_name' => $short_name));
+    $query->fields('ufap',array('pid'));
     $result = $query->execute();
+    $result = $result->fetchObject();
     if($result == NULL) {
       return FALSE;
     }
-    $result = $result->fetchObject();
-    return self::load_project_by_pid($result->pid);
+    
+    return self::load_by_pid($result->pid);
   }
   
   static protected function init_from_db($array) {
@@ -32,5 +32,26 @@ class Project_factory {
     unset($array['terms'], $array['server_key']);
     $info = $array;
     return new Project($info, $terms, $server_key);
+  }
+}
+
+class Release_factory {
+  static public function load_by_rid($rid, $project) {
+    $query = db_select('update_feed_api_releases','ufar');
+    $query->conditions(array('ufar.rid' => $rid));
+    $query->fields('ufar');
+    $result = $query->execute();
+    $result = $result->fetchAssoc();
+    if($result == NULL) {
+      return FALSE;
+    }
+    return self::init_from_db($result,$project);
+  }
+  
+  static protected function init_from_db($array, $project) {
+    $terms = unserialize($array['terms']);
+    unset($array['terms']);
+    $info = $array;
+    return new Release($info, $terms, $project);
   }
 }
