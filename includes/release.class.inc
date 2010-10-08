@@ -6,6 +6,7 @@ class Release extends FeedEntryContainer{
     parent::__construct($info, $terms);
     $this->parent_project = $project;
     $this->dest_table = 'update_feed_api_releases';
+    $this->prim_key_field = 'rid';
   }
   
   protected function validate_terms($terms)  {
@@ -24,15 +25,14 @@ class Release extends FeedEntryContainer{
     }
   }
   
-  protected function add_db_field(&$fields) {
-    $fields['server_key'] = $this->parent_project->server_key();
-    $fields['project_short_name'] = $this->parent_project->get_info('short_name');
+  protected function alter_db_fields(&$fields) {
+    $fields['pid'] = $this->parent_project->get_info('pid');
     parent::add_db_field($fields);
   }
   
   protected function get_primary_key(&$fields) {
-    if(array_key_exists('rid', $fields)) {
-      return 'rid';
+    if (array_key_exists($this->prim_key_field, $fields)) {
+      return $this->prim_key_field;
     }
     // else
     return FALSE;

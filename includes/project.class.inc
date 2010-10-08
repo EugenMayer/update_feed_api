@@ -4,10 +4,12 @@
 class Project extends FeedEntryContainer {
   protected $releases = array();
   protected $server_key = NULL;
+  
   public function __construct($infos, $terms, $server_key, $load_release = TRUE) {
     // title, short_name, api_version, recommended_version, supported_major_default_major, project_status, link
     parent::__construct($infos, $terms);
     $this->dest_table = 'update_feed_api_projects';
+    $this->prim_key_field = 'pid';
     $this->server_key = $server_key;
     // if we should load release and we have a primary key already
     // (project loaded from the DB) load all releases
@@ -58,19 +60,11 @@ class Project extends FeedEntryContainer {
     }
   }
   
-  protected function add_db_field(&$fields) {
+  protected function alter_db_fields(&$fields) {
     $fields['server_key'] = $this->server_key();
     parent::add_db_field($fields);
   }
-  
-  protected function get_primary_key(&$fields) {
-    if (array_key_exists('pid', $fields)) {
-      return 'pid';
-    }
-    // else
-    return FALSE;
-  }
-  
+
   protected function load_releases() {
     $prim_key = $this->get_primary_key($this->infos);
     if($prim_key == FALSE) {

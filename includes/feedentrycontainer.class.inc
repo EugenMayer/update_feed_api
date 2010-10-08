@@ -3,6 +3,7 @@
 // and the serialization to fields for the database
 abstract class FeedEntryContainer {
   protected $dest_table = NULL;
+  protected $prim_key_field = NULL;
   protected $infos = array();
   protected $terms = array();
   public function __construct($infos, $terms) {
@@ -57,8 +58,9 @@ abstract class FeedEntryContainer {
       throw new Exception("Your implementation(".get_class($this).") of FeedEntryContainer does not set dest_table! "); 
     }
     $fields = $this->infos;
-    $this->add_db_field($fields);
-    $prim_key = $this->get_primary_key($fields);
+    // Let others add fields
+    $this->alter_db_fields($fields);
+    $prim_key = $this->primary_key_exists($fields);
     // finally we are free to go
     if($prim_key !== FALSE) {
       // primary key is set, so update
@@ -67,12 +69,25 @@ abstract class FeedEntryContainer {
       db_update($this->dest_table)->fields($fields)->condition( $prim_key, $value )->execute();
     }
     else {
-      db_insert($this->dest_table)->fields($fields)->execute();
+      $key_value = db_insert($this->dest_table)->fields($fields)->execute();
+      $this->infos[$this->prim_key_field ] = $key_value;
     }
   }
   
-  protected function add_db_field(&$fields) {
+  protected function alter_db_fields(&$fields) {
     $fields['terms'] = serialize($this->terms);
+  }  
+    
+  protected function primary_key_exists(&$fields) {
+    if ($this->prim_key_field == NULL) {
+      throw new Exception("Your implementation(".get_class($this).") of FeedEntryContainer does not set the primary key! "); 
+    }
+    
+    if (array_key_exists($this->prim_key_field, $fields)) {
+      return $this->prim_key_field;
+    }
+    // else
+    return FALSE;
   }
   
   abstract protected function validate_terms($terms);

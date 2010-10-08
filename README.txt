@@ -6,6 +6,8 @@ All you need is a update-feed integration like the one from Project or Fserver, 
 
 As i described before, you can handle several sources. That means there is no issue having views on your own feature server and on drupal.org. Both projects are saved and can be selected by there source. Easy.
 
+As iam using dbtng this API should be compatible to D6 and D7.
+
 Scope:
 That module should be for developers which want to work with the Project informations of Drupal modules/themes/whatever for building anykind of tools.
 
