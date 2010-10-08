@@ -7,6 +7,102 @@
 /**
  * Implementation of hook_autoload_info().
  */
+
+require_once 'update_feed_api.batch.inc';
+
+function update_feed_api_menu() {
+  return array(
+    'admin/build/refresh_update_feeds' => array(
+       'title' => 'Refresh Update Feeds',
+       'page callback' => 'drupal_get_form',
+       'page arguments' => array('update_feed_api_refresh_form'),
+       'access arguments' => array('administer site configuration'),
+    ),
+    'admin/settings/update_feed_api_settings' => array (
+      'type' => MENU_NORMAL_ITEM,
+      'title' => 'Update Feed API configuration',
+      'description' => 'Configure update feed api',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('update_feed_api_admin_settings'),
+      'access arguments' => array('administer site configuration'),
+      'file' => 'update_feed_api.admin.inc'
+     )
+  );
+}
+
+function _update_feed_api_start_refresh_batch() {
+  // Update the user profiles to add values to newly added profile fields
+  $batch = array(
+    'title' => t('Updating update-feeds'), // Title to display while running.
+    'operations' => array(), // Operations to complete, in order. Defined below.
+    'finished' => '_update_feed_api_refresh_finished', // Last function to call.
+    'init_message' => t('Initializing...'),
+    'progress_message' => t('Updated @current out of @total.'),
+    'error_message' => t('Could not update update-feeds. Mabye connection errors occured.'),
+  );
+  $feeds = _update_feed_api_get_feeds();
+  if(count($feeds) == 0) {
+    drupal_set_message('No feeds configured yet? Go to the '.l('update Feed configuration','admin/settings/update_feed_api_settings'),'warning');
+    return '';
+  }  
+  $batch['operations'][] = array('_update_feed_api_process_feeds', array($feeds));
+  // clear the tables before we start
+  _update_feed_api_clear_tables();
+  batch_set($batch);
+}
+
+function _update_feed_api_get_feeds() {
+  // Must have the format: Descriptive=css_style,Descriptive2=css_style2..
+  $settings = variable_get('update_feed_api_feeds', '');
+  $feeds = array();
+  if ($settings != '') {
+    $feeds_lines = array();
+    $feeds_lines = preg_split("/((\r(?!\n))|((?<!\r)\n)|(\r\n))/", $settings);
+    foreach ($feeds_lines as $feed) {
+      $feed = explode('|',$feed);
+      $feed = array(
+        'host' => $feed[0],
+        'server_key' => $feed[1],
+        'class' => $feed[2],
+      );
+      // validate
+      if(!class_exists($feed['class'])) {
+        drupal_set_message('Cant fetch feed '.$feed['server_key']." as the class ({$feed['class']}) is missing");
+        continue;
+      }
+      //else
+      $feeds[] = $feed;
+    }
+  }
+  return $feeds;
+}
+
+function _update_feed_api_clear_tables() {
+  db_query('TRUNCATE TABLE {update_feed_api_projects}');
+  db_query('TRUNCATE TABLE {update_feed_api_releases}');
+}
+
+
+function update_feed_api_refresh_form(&$form_state) {
+   $form['update_feed_container'] = array(
+   '#type' => 'fieldset',
+   '#title' => 'Update update-feeds',
+   '#description' => 'Regenerate all projects and there release',
+   '#collapsible' => TRUE,
+   '#collapsed' => FALSE,
+  );
+  
+  $form['update_feed_container']['start'] = array(
+    '#type' => 'submit',
+    '#value' => t('Refresh'),
+  );
+  return $form;
+}
+
+function update_feed_api_refresh_form_submit($form, &$form_state) {
+  _update_feed_api_start_refresh_batch();
+}
+
 function update_feed_api_autoload_info() {
   $path = drupal_get_path('module','update_feed_api').'/includes/';
   return array(
@@ -41,144 +137,3 @@ function update_feed_api_autoload_info() {
   );
 }
 
-function update_feed_api_menu() {
-  return array(
-    'update_feed_api_test' => array(
-       'page callback' => '_update_feed_api_test',
-       'access callback' => TRUE
-    ),
-    'admin/build/refresh_update_feeds' => array(
-       'title' => 'Refresh Update Feeds',
-       'page callback' => 'drupal_get_form',
-       'page arguments' => array('update_feed_api_refresh_form'),
-       'access arguments' => array('administer site configuration'),
-    ),
-    'admin/settings/update_feed_api_settings' => array (
-      'type' => MENU_NORMAL_ITEM,
-      'title' => 'Update Feed API configuration',
-      'description' => 'Configure update feed api',
-      'page callback' => 'drupal_get_form',
-      'page arguments' => array('update_feed_api_admin_settings'),
-      'access arguments' => array('administer site configuration'),
-      'file' => 'update_feed_api.admin.inc'
-     )
-  );
-}
-
-function update_feed_api_refresh_form(&$form_state) {
-   $form['update_feed_container'] = array(
-   '#type' => 'fieldset',
-   '#title' => 'Update update-feeds',
-   '#description' => 'Regenerate all projects and there release',
-   '#collapsible' => TRUE,
-   '#collapsed' => FALSE,
-  );
-  
-  $form['update_feed_container']['start'] = array(
-    '#type' => 'submit',
-    '#value' => t('Refresh'),
-  );
-  return $form;
-}
-
-function update_feed_api_refresh_form_submit($form, &$form_state) {
-  _update_feed_api_start_refresh_batch();
-}
-
-function _update_feed_api_start_refresh_batch() {
-  // Update the user profiles to add values to newly added profile fields
-  $batch = array(
-    'title' => t('Updating update-feeds'), // Title to display while running.
-    'operations' => array(), // Operations to complete, in order. Defined below.
-    'finished' => '_update_feed_api_refresh_finished', // Last function to call.
-    'init_message' => t('Initializing...'),
-    'progress_message' => t('Updated @current out of @total.'),
-    'error_message' => t('Could not update update-feeds. Mabye connection errors occured.'),
-  );
-  $feeds = _update_feed_api_get_feeds();
-  if(count($feeds) == 0) {
-    drupal_set_message('No feeds configured yet? Go to the '.l('update Feed configuration','admin/settings/update_feed_api_settings'),'warning');
-    return '';
-  }
-  $batch['operations'][] = array('_update_feed_api_process_feeds', array($feeds));
-
-  batch_set($batch);
-}
-
-function _update_feed_api_process_feeds($feeds,&$context) { 
-  if (!isset($context['sandbox']['progress'])) {
-    $context['sandbox']['feeds'] = $feeds;
-    $context['sandbox']['progress'] = 0;
-    $context['sandbox']['cur_feed_nr'] = -1;
-    $context['sandbox']['processing_feed'] = FALSE;
-  }
-  // if no feed is procgressedd or the last is finished, start the next one
-  if($context['sandbox']['processing_feed'] == FALSE) {
-    // check if we are finished
-    if($context['sandbox']['cur_feed_nr'] == count($context['sandbox']['feeds'])) {
-      $context['finished'] = 1;
-      return;
-    }
-    $context['sandbox']['cur_feed_nr']++;
-    $class = $context['sandbox']['feeds'][ $context['sandbox']['cur_feed_nr'] ]['class'];
-    $host = $context['sandbox']['feeds'][  $context['sandbox']['cur_feed_nr']] ['host'];
-    $server_key = $context['sandbox']['feeds'][  $context['sandbox']['cur_feed_nr'] ]['server_key'];
-    
-    $context['sandbox']['cur_feed'] = new $class($host, $server_key);
-    // fetch the complete project list
-    try {
-      $context['sandbox']['cur_feed']->fetch_project_list();
-      $context['sandbox']['processing_feed'] = TRUE;
-    }
-    catch( Exception $e) {
-      drupal_set_message($e->getMessage(),'error');
-      $context['sandbox']['processing_feed'] = FALSE;
-    }
-  }
-  
-  $status = $context['sandbox']['cur_feed']->fetch_next_projects();
-  if($status === TRUE) {
-      $context['finished'] = 1;
-  }
-  dsm($status);
-  // else
-  $context['finished'] = (1 / $status);
-}
-
-function _update_feed_api_refresh_finished() {
-  drupal_set_message('All update-feeds have been updated');
-  return '';
-}
-
-function _update_feed_api_get_feeds() {
-  // Must have the format: Descriptive=css_style,Descriptive2=css_style2..
-  $settings = variable_get('update_feed_api_feeds', '');
-  $feeds = array();
-  if ($settings != '') {
-    $feeds_lines = array();
-    $feeds_lines = preg_split("/((\r(?!\n))|((?<!\r)\n)|(\r\n))/", $settings);
-    foreach ($feeds_lines as $feed) {
-      $feed = explode('|',$feed);
-      $feed = array(
-        'host' => $feed[0],
-        'server_key' => $feed[1],
-        'class' => $feed[2],
-      );
-      // validate
-      if(!class_exists($feed['class'])) {
-        drupal_set_message('Cant fetch feed '.$feed['server_key']." as the class ({$feed['class']}) is missing");
-        continue;
-      }
-      //else
-      $feeds[] = $feed;
-    }
-  }
-  return $feeds;
-}
-
-function _update_feed_api_test() {
-  $feed = new Update_feed('http://updates.drupal.org','drupal_org');
-  $feed->fetch();
-  $feed->save();
-  return '';
-}

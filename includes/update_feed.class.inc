@@ -11,25 +11,16 @@
  * Of course you can reimplement this and fetch the data from somewhere else, e.g. a database or a file
  */
 class Update_feed {
-  protected $host, $server_key;
-  protected $projects_shortinfo = array();
+  protected $host, $server_key, $project_list_store;
   protected $projects = array();
-  protected $stepping = 10;
+  protected $stepping;
   protected $cur_pos = 0;
   protected $projects_count = 24;
-  public function __construct($host, $server_key) {
+  public function __construct($host, $server_key, $stepping = 10) {
     $this->host = $host;
     $this->server_key = $server_key;
-    $this->cur_pos = 0;
-    $this->stepping = 10;
-  }
-  
-  public function fetch() {
-    $this->fetch_projects();
-    
-    foreach($this->projects_shortinfo as $p) {
-      $this->projects[] = $this->fetch_project($p, FALSE);
-    }
+    $this->cur_pos = 1;
+    $this->stepping = $stepping;
   }
   
   public function save() {
@@ -40,19 +31,38 @@ class Update_feed {
   
   public function fetch_project_list() {
     $url = $this->host.$this->project_list_url();
-    $this->list = drupal_http_request($url);
-    if($this->list == FALSE) {
+    $result = drupal_http_request($url);
+    if($result == FALSE) {
       throw new Exception("Could not fetch projects from $url");
     }
-    // else
-    $this->list = $this->list->data;
+    
+    $tmp = file_directory_temp();
+    $filename = uniqid().'xml';
+    $path = "$tmp/$filename";
+    file_put_contents($path,$result->data);
+    $this->project_list_store = $path;
+    // count all projects once        
+    $doc = new SmartDOMDocument();
+    $doc->loadXML($result->data);
+    $xpath = new DOMXPath($doc);
+    $projects = $xpath->query("//project", $doc);
+    $this->projects_count = $projects->length;
+    $this->projects_count = 10;
   }
   
   public function fetch_next_projects() {
     if($this->cur_pos < $this->projects_count) {
-      // do something
+      // define the border, exclusivly
       $to = $this->cur_pos + $this->stepping;
-      $this->fetch_projects($this->cur_pos,  $to);
+      // finally fetch the projects shortinfos
+      $projects_shortinfo = $this->fetch_projects($this->cur_pos,  $to);
+      // no get all detailed informations, project by project and save them in the DB
+      foreach($projects_shortinfo as $p) {
+        // we dont fetch releases yet, just for debuuging
+        // the result is an array of projects for this project, as they are seperated by the API key
+        $projects = $this->fetch_project_details($p, FALSE, TRUE);
+      }
+      // we are done, set the new posion and return how many steps we will need to finish all projects
       $this->cur_pos = $to;
       $status = ceil( ($this->projects_count - $this->cur_pos) / $this->stepping ) + 1;
       return $status;
@@ -63,14 +73,15 @@ class Update_feed {
   }
   
   protected function fetch_projects($from, $to){
-    dsm("$from to $to");
-    return;
+    // We need to read the file each time, as it seem not to be persisten due a session in batch run
+    // so we save it in the temporary file
     $doc = new SmartDOMDocument();
-    $doc->loadXML($result->data);
-    
+    $xml = file_get_contents($this->project_list_store);
+    $doc->loadXML($xml);
     $xpath = new DOMXPath($doc);
-    // well if someone wants to use CVS the does not need to be a api_version or?
-    $projects = $xpath->query("//project[count(./api_versions)>0]", $doc);
+    // we dont include the right border, as we will start with that element the next time
+    $projects = $xpath->query("//project[position() >= $from and position() < $to]", $doc);
+    $result = array();
     foreach($projects as $p) {
       $project_shortinfo = array();
       $project_shortinfo['short_name'] = $xpath->query("./short_name", $p)->item(0)->nodeValue;
@@ -82,11 +93,17 @@ class Update_feed {
         $project_shortinfo['apis'][] = $api->nodeValue;
       }
       // on one sever, the short_name is unique
-      $this->projects_shortinfo[$project_shortinfo['short_name']] = $project_shortinfo;
+      $result[$project_shortinfo['short_name']] = $project_shortinfo;
     }
+    return $result;
   }
-  
-  protected function fetch_project($project_shortinfo, $fetch_releases = TRUE) {
+  // be ware, returns an array. Each item is one of the project with a specfici API key
+  protected function fetch_project_details($project_shortinfo, $fetch_releases = TRUE, $save = FALSE) {
+    $projects_by_api = array();
+    if(!array_key_exists('apis',$project_shortinfo)) {
+      // TODO: what to do here?When a project does not have an API, we cant fetch anything 
+      return array();
+    }
     foreach($project_shortinfo['apis'] as $api) {
       $url = $this->host.$this->project_data_url();
       // replace tokens
@@ -138,9 +155,12 @@ class Update_feed {
       if($fetch_releases) {
         $this->fetch_releases($doc, $project_obj);
       }
-      
-      return $project_obj;
+      if($save) {
+        $project_obj->save();
+      }
+      $projects_by_api[] = $project_obj;
     }
+    return $projects_by_api;
   }
   
   protected function fetch_releases($doc, &$project_obj) {
