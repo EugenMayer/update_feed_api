@@ -47,7 +47,6 @@ class Update_feed {
     $xpath = new DOMXPath($doc);
     $projects = $xpath->query("//project", $doc);
     $this->projects_count = $projects->length;
-    $this->projects_count = 10;
   }
   
   public function fetch_next_projects() {
@@ -60,7 +59,7 @@ class Update_feed {
       foreach($projects_shortinfo as $p) {
         // we dont fetch releases yet, just for debuuging
         // the result is an array of projects for this project, as they are seperated by the API key
-        $projects = $this->fetch_project_details($p, FALSE, TRUE);
+        $projects = $this->fetch_project_details($p, TRUE, TRUE);
       }
       // we are done, set the new posion and return how many steps we will need to finish all projects
       $this->cur_pos = $to;
@@ -97,6 +96,7 @@ class Update_feed {
     }
     return $result;
   }
+  
   // be ware, returns an array. Each item is one of the project with a specfici API key
   protected function fetch_project_details($project_shortinfo, $fetch_releases = TRUE, $save = FALSE) {
     $projects_by_api = array();
