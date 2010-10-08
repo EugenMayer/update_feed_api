@@ -2,8 +2,8 @@
 // A general Drupal Project release with its meta data
 class Release extends FeedEntryContainer{
   protected $parent_project = NULL;
-  public function __construct($info, $terms, $project) {
-    parent::__construct($info, $terms);
+  public function __construct($infos, $terms, $project) {
+    parent::__construct($infos, $terms);
     $this->parent_project = $project;
     $this->dest_table = 'update_feed_api_releases';
     $this->prim_key_field = 'rid';
@@ -27,7 +27,7 @@ class Release extends FeedEntryContainer{
   
   protected function alter_db_fields(&$fields) {
     $fields['pid'] = $this->parent_project->get_info('pid');
-    parent::add_db_field($fields);
+    parent::alter_db_fields($fields);
   }
   
   protected function get_primary_key(&$fields) {

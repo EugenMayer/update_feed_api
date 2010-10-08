@@ -13,7 +13,7 @@ class Project extends FeedEntryContainer {
     $this->server_key = $server_key;
     // if we should load release and we have a primary key already
     // (project loaded from the DB) load all releases
-    if(($load_release) && $this->get_primary_key($this->infos)) {
+    if(($load_release) && $this->primary_key_exists($this->infos)) {
       $this->load_releases();
     };
   }
@@ -62,11 +62,11 @@ class Project extends FeedEntryContainer {
   
   protected function alter_db_fields(&$fields) {
     $fields['server_key'] = $this->server_key();
-    parent::add_db_field($fields);
+    parent::alter_db_fields($fields);
   }
 
   protected function load_releases() {
-    $prim_key = $this->get_primary_key($this->infos);
+    $prim_key = $this->primary_key_exists($this->infos);
     if($prim_key == FALSE) {
       // no need to load release, as we did not get saved in the DB yet
       return;

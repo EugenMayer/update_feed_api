@@ -109,6 +109,7 @@ class Update_feed {
         $project_obj = new Project($infos, $terms, $this->server_key);
       }
       catch (Exception $e) {
+        drupal_set_message('Could not create project '.$infos['short_name'].' due to missing fields: '.$e->getMessage());
         // Could not create release, most probably validation failed, so fields missing
         // TODO: log this?
         continue;
@@ -152,6 +153,7 @@ class Update_feed {
         $project_obj->add_release($infos, $terms);
       }
       catch(Exception $e) {
+        drupal_set_message('Could not create release '.$infos['name'].' due to missing fields: '.$e->getMessage());
         // Could not create release, most probably validation failed, so fields missing
         // TODO: log this?
         continue;

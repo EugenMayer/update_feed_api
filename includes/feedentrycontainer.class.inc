@@ -92,5 +92,4 @@ abstract class FeedEntryContainer {
   
   abstract protected function validate_terms($terms);
   abstract protected function validate_infos($info);
-  abstract protected function get_primary_key(&$fields);
 }
