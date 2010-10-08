@@ -17,7 +17,7 @@ class Project extends FeedEntryContainer {
   }
   
   public function add_release($infos, $terms) {
-    $this->releases[$info['date']] = new Release($infos, $terms, $this);
+    $this->releases[$infos['date']] = new Release($infos, $terms, $this);
   }
   
   public function get_release($date = NULL) {
@@ -73,15 +73,15 @@ class Project extends FeedEntryContainer {
   
   protected function load_releases() {
     $prim_key = $this->get_primary_key($this->infos);
-    
+    if($prim_key == FALSE) {
+      // no need to load release, as we did not get saved in the DB yet
+      return;
+    }
     $query = db_select('update_feed_api_releases','ufar');
-    $query->condition( 'server_key', $this->server_key);
-    $query->condition( 'project_short_name', $this->infos['short_name'] );
+    $query->condition( $prim_key, $this->infos[$prim_key]);
     $query->fields('ufar', array('rid') );
-    
     $result = $query->execute();
-
-    //if($result == NULL)
+    
     foreach($result as $record) {
       $release = Release_factory::load_by_rid($record->rid, $this);
       $this->releases[$release->get_info('date')] = $release;

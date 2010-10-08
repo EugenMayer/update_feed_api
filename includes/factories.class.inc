@@ -7,19 +7,19 @@ class Project_factory {
     $query->fields('ufap');
     $result = $query->execute();
     $result = $result->fetchAssoc();
-    if($result == NULL) {
+    if ($result == NULL) {
       return FALSE;
     }
     return self::init_from_db($result);
   }
   
-  static public function load_project($server_key, $short_name) {
+  static public function load_project($server_key, $short_name, $api) {
     $query = db_select('update_feed_api_projects','ufap');
-    $query->conditions( array('ufap.server_key' => $server_key,'ufap.short_name' => $short_name));
+    $query->conditions( array('ufap.server_key' => $server_key,'ufap.short_name' => $short_name, 'ufap.api_version' => $api));
     $query->fields('ufap',array('pid'));
     $result = $query->execute();
     $result = $result->fetchObject();
-    if($result == NULL) {
+    if ($result == NULL) {
       return FALSE;
     }
     
@@ -42,7 +42,7 @@ class Release_factory {
     $query->fields('ufar');
     $result = $query->execute();
     $result = $result->fetchAssoc();
-    if($result == NULL) {
+    if ($result == NULL) {
       return FALSE;
     }
     return self::init_from_db($result,$project);

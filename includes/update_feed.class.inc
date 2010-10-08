@@ -129,8 +129,8 @@ class Update_feed {
       $infos['name'] = $xpath->query("./name", $release)->item(0)->nodeValue;
       $infos['version'] = $xpath->query("./version", $release)->item(0)->nodeValue;
       $infos['tag'] = $xpath->query("./tag", $release)->item(0)->nodeValue;
-      $infos['version_major'] = $xpath->query("//version_major", $release)->item(0)->nodeValue;
-      $infos['version_extra'] = $xpath->query("//version_extra", $release)->item(0)->nodeValue;
+      $infos['version_major'] = $xpath->query("./version_major", $release)->item(0)->nodeValue;
+      $infos['version_extra'] = $xpath->query("./version_extra", $release)->item(0)->nodeValue;
       $infos['status'] = $xpath->query("./status", $release)->item(0)->nodeValue;
       $infos['status'] = $xpath->query("./status", $release)->item(0)->nodeValue;
       $infos['status'] = $xpath->query("./status", $release)->item(0)->nodeValue;
@@ -158,6 +158,7 @@ class Update_feed {
       }
     }
   }
+  
   protected function project_list_url() {
     return '/release-history/project-list/all';
   }

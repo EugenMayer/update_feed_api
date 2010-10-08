@@ -16,7 +16,7 @@ abstract class FeedEntryContainer {
   }
   
   public function get_term($key) {
-    if(array_key_exists($key, $this->terms)) {
+    if (array_key_exists($key, $this->terms)) {
       return $this->terms[$key];
     }
     // Exception?
@@ -25,7 +25,7 @@ abstract class FeedEntryContainer {
   }
   
   public function get_info($key) {
-    if(array_key_exists($key, $this->infos)) {
+    if (array_key_exists($key, $this->infos)) {
       return $this->infos[$key];
     }
     
@@ -43,7 +43,7 @@ abstract class FeedEntryContainer {
   
   // A little function which take an array as keys
   protected function array_keys_exists($keys, $array) {
-    foreach($keys as $k) {
+    foreach ($keys as $k) {
         if(!isset($array[$k])) {
         return false;
         }
@@ -53,7 +53,7 @@ abstract class FeedEntryContainer {
   
   // A little function which take an array as keys
   public function save() {
-    if($this->dest_table == NULL) {
+    if ($this->dest_table == NULL) {
       throw new Exception("Your implementation(".get_class($this).") of FeedEntryContainer does not set dest_table! "); 
     }
     $fields = $this->infos;
@@ -61,10 +61,10 @@ abstract class FeedEntryContainer {
     $prim_key = $this->get_primary_key($fields);
     // finally we are free to go
     if($prim_key !== FALSE) {
-        // primary key is set, so update
-        $value = $fields[$prim_key];
-        unset( $fields[$prim_key]);
-        db_update($this->dest_table)->fields($fields)->condition( $prim_key, $value )->execute();
+      // primary key is set, so update
+      $value = $fields[$prim_key];
+      unset( $fields[$prim_key]);
+      db_update($this->dest_table)->fields($fields)->condition( $prim_key, $value )->execute();
     }
     else {
       db_insert($this->dest_table)->fields($fields)->execute();
