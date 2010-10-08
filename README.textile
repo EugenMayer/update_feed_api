@@ -9,9 +9,11 @@ As i described before, you can handle several sources. That means there is no is
 As iam using dbtng this API should be compatible to D6 and D7.
 
 h1. Scope
+
 That module should be for developers which want to work with the Project informations of Drupal modules/themes/whatever for building anykind of tools.
 
 h1. Usecase
+
 -Auto Update-
 Like Drupal module for auto-updating your site. You fetch the current versions available and decide buy GUI what you want to update. The module downloads the module and does the rest.
 
@@ -30,11 +32,13 @@ h1. Installation / Usage
 Have fun, takes some time :)
 
 h1. Workflow
+
 Update feed entries are featch (project list) and for each project, the project informations and releases are fetched. Those informations are stored in the local database for usage with anything you like.
 Use it for autocompletition or what ever you like. The database will be regenerated using cron jobs and caches.
 
 
 h1. API
+
 project.class.inc
   This is a abstraction of a Project. You can load/save/update a project from a Database or from a feed. You will use this container for your purpose like autocompletition.
   It also has an interface to work with the project release (of the current project identified by the server_key, short_name, api version).
