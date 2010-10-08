@@ -14,13 +14,15 @@ That module should be for developers which want to work with the Project informa
 
 h1. Usecase
 
-_Auto Update_
+h3.  Auto Update
+
 Like Drupal module for auto-updating your site. You fetch the current versions available and decide buy GUI what you want to update. The module downloads the module and does the rest.
 
-_Drush module / version autocompletition_
+h3. Drush module / version autocompletition
+
 Well yeah, think about you get a autocompletiton on modules / version / api on the console. Lovely!
 
-_Tell me!_
+h3. Tell me!
 
 The initial idea for this came from the http:/drupal.org/project/project_api which does generaly the same, but lacks things like multi-server support or the fetching of releases (yet).
 
