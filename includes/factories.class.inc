@@ -1,4 +1,8 @@
 <?php
+// $Id$
+
+// Copyright (c) 2010 KontextWork
+// Author: Eugen Mayer
 
 class Project_factory {
   static public function load_by_pid($pid) {
@@ -7,7 +11,7 @@ class Project_factory {
     $query->fields('ufap');
     $result = $query->execute();
     $result = $result->fetchAssoc();
-    if ^($result == NULL) {
+    if ($result == NULL) {
       return FALSE;
     }
     return self::init_from_db($result);

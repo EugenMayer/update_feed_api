@@ -1,4 +1,9 @@
 <?php
+// $Id$
+
+// Copyright (c) 2010 KontextWork
+// Author: Eugen Mayer
+
 // Our base class as a container to include the basic meta data
 // and the serialization to fields for the database
 abstract class FeedEntryContainer {

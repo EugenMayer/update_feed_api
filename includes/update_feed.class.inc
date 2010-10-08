@@ -1,4 +1,8 @@
 <?php
+// $Id$
+
+// Copyright (c) 2010 KontextWork
+// Author: Eugen Mayer
 
 /* basic class to fetch a update feed and the release feed
  * to extend this, you most probably only want to override
@@ -10,6 +14,7 @@ class Update_feed {
   protected $host, $server_key;
   protected $projects_shortinfo = array();
   protected $projects = array();
+  protected $stepping = 10;
   public function __construct($host, $server_key) {
     $this->host = $host;
     $this->server_key = $server_key;
@@ -19,7 +24,7 @@ class Update_feed {
     $this->fetch_projects();
     
     foreach($this->projects_shortinfo as $p) {
-      $this->projects[] = $this->fetch_project($p, TRUE);
+      $this->projects[] = $this->fetch_project($p, FALSE);
     }
   }
   
@@ -29,21 +34,29 @@ class Update_feed {
     }
   }
   
-  protected function fetch_projects(){
+  public function fetch_project_list() {
     $url = $this->host.$this->project_list_url();
-    $result = drupal_http_request($url);
-    
-    if($result == FALSE) {
+    $this->list = drupal_http_request($url);
+    if($this->list == FALSE) {
       throw new Exception("Could not fetch projects from $url");
     }
-    
+    // else
+    $this->list = $this->list->data;
+  }
+  
+  public function fetch_next_projects() {
+    dsm('fetching');
+    // if last step
+    return TRUE;
+  }
+  
+  protected function fetch_projects(){
     $doc = new SmartDOMDocument();
     $doc->loadXML($result->data);
     
     $xpath = new DOMXPath($doc);
     // well if someone wants to use CVS the does not need to be a api_version or?
     $projects = $xpath->query("//project[count(./api_versions)>0]", $doc);
-    $i = 0;
     foreach($projects as $p) {
       $project_shortinfo = array();
       $project_shortinfo['short_name'] = $xpath->query("./short_name", $p)->item(0)->nodeValue;
@@ -56,12 +69,6 @@ class Update_feed {
       }
       // on one sever, the short_name is unique
       $this->projects_shortinfo[$project_shortinfo['short_name']] = $project_shortinfo;
-      
-      // TODO: remove this, we only fetch 3 projects at max right now
-      $i++;
-      if($i > 2) {
-        return '';
-      }
     }
   }
   
@@ -109,7 +116,7 @@ class Update_feed {
         $project_obj = new Project($infos, $terms, $this->server_key);
       }
       catch (Exception $e) {
-        drupal_set_message('Could not create project '.$infos['short_name'].' due to missing fields: '.$e->getMessage());
+        drupal_set_message('Could not create project '.$infos['short_name'].' due to missing fields. Error: '.$e->getMessage());
         // Could not create release, most probably validation failed, so fields missing
         // TODO: log this?
         continue;
@@ -153,7 +160,7 @@ class Update_feed {
         $project_obj->add_release($infos, $terms);
       }
       catch(Exception $e) {
-        drupal_set_message('Could not create release '.$infos['name'].' due to missing fields: '.$e->getMessage());
+        drupal_set_message('Could not create the release "'.$infos['name'].'"('.$infos['tag'].') of project "'.$project_obj->get_info['short_name'].'" due to missing fields. Error: '.$e->getMessage());
         // Could not create release, most probably validation failed, so fields missing
         // TODO: log this?
         continue;

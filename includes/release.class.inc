@@ -1,4 +1,9 @@
 <?php
+// $Id$
+
+// Copyright (c) 2010 KontextWork
+// Author: Eugen Mayer
+
 // A general Drupal Project release with its meta data
 class Release extends FeedEntryContainer{
   protected $parent_project = NULL;

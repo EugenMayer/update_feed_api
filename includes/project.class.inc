@@ -1,4 +1,8 @@
 <?php
+// $Id$
+
+// Copyright (c) 2010 KontextWork
+// Author: Eugen Mayer
 
 // A genera Drupal Project "Project" with its meta data
 class Project extends FeedEntryContainer {
