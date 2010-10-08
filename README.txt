@@ -22,6 +22,12 @@ Well yeah, think about you get a autocompletiton on modules / version / api on t
 
 The initial idea for this came from the http:/drupal.org/project/project_api which does generaly the same, but lacks things like multi-server support or the fetching of releases (yet).
 
+Installation / Usage:
+ - Just activate the module and the deps.
+ - Then go to the the update feed api configuration admin/settings/update_feed_api_settings and configure your feeds. Look for the example, that should work if you use it for testing.
+ - No you can start fetching the projects going to admin/build/refresh_update_feeds
+
+Have fun, takes some time :)
 
 Workflow:
 Update feed entries are featch (project list) and for each project, the project informations and releases are fetched. Those informations are stored in the local database for usage with anything you like.
