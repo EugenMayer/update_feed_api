@@ -15,9 +15,13 @@ class Update_feed {
   protected $projects_shortinfo = array();
   protected $projects = array();
   protected $stepping = 10;
+  protected $cur_pos = 0;
+  protected $projects_count = 24;
   public function __construct($host, $server_key) {
     $this->host = $host;
     $this->server_key = $server_key;
+    $this->cur_pos = 0;
+    $this->stepping = 10;
   }
   
   public function fetch() {
@@ -45,12 +49,22 @@ class Update_feed {
   }
   
   public function fetch_next_projects() {
-    dsm('fetching');
+    if($this->cur_pos < $this->projects_count) {
+      // do something
+      $to = $this->cur_pos + $this->stepping;
+      $this->fetch_projects($this->cur_pos,  $to);
+      $this->cur_pos = $to;
+      $status = ceil( ($this->projects_count - $this->cur_pos) / $this->stepping ) + 1;
+      return $status;
+    }
+
     // if last step
     return TRUE;
   }
   
-  protected function fetch_projects(){
+  protected function fetch_projects($from, $to){
+    dsm("$from to $to");
+    return;
     $doc = new SmartDOMDocument();
     $doc->loadXML($result->data);
     
