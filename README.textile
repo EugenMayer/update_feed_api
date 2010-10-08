@@ -14,20 +14,20 @@ That module should be for developers which want to work with the Project informa
 
 h1. Usecase
 
--Auto Update-
+_Auto Update_
 Like Drupal module for auto-updating your site. You fetch the current versions available and decide buy GUI what you want to update. The module downloads the module and does the rest.
 
--Drush module / version autocompletition-
+_Drush module / version autocompletition_
 Well yeah, think about you get a autocompletiton on modules / version / api on the console. Lovely!
 
--Tell me!-
+_Tell me!_
 
 The initial idea for this came from the http:/drupal.org/project/project_api which does generaly the same, but lacks things like multi-server support or the fetching of releases (yet).
 
 h1. Installation / Usage
-* Just activate the module and the deps.
-* Then go to the the update feed api configuration admin/settings/update_feed_api_settings and configure your feeds. Look for the example, that should work if you use it for testing.
-* No you can start fetching the projects going to admin/build/refresh_update_feeds
+# Just activate the module and the deps.
+# Then go to the the update feed api configuration admin/settings/update_feed_api_settings and configure your feeds. Look for the example, that should work if you use it for testing.
+# No you can start fetching the projects going to admin/build/refresh_update_feeds
 
 Have fun, takes some time :)
 
@@ -39,21 +39,26 @@ Use it for autocompletition or what ever you like. The database will be regenera
 
 h1. API
 
-project.class.inc
+h3. project.class.inc
+
   This is a abstraction of a Project. You can load/save/update a project from a Database or from a feed. You will use this container for your purpose like autocompletition.
   It also has an interface to work with the project release (of the current project identified by the server_key, short_name, api version).
   You can extend this class with needed methods for your applications or change some of its behavior
   
-release.class.inc
+h3. release.class.inc
+
   Container for a release with its meta data. You can load/save/update a release using this class (or the factory). Exactly the same interface as a release.
   
-update_feed.class.inc
+h3. update_feed.class.inc
+
   A basic implementation of a update feed fetcher for drupalas "Project" module (like its used on drupal.org) and for the feature server. You can change the way sources are fetched or from where.
   Paths on the server are abstracted with tokens, so you can override and redefine you own protocols with only some few lines of code
   
-factories.class.inc
+h3. factories.class.inc
+
   Just some factories to load Projects / Releases
   
-feedentrycontainer.class.inc
+h3. feedentrycontainer.class.inc
+
   Thats actually the basic abstract class of a Project / Release handling all the shared tasks like saving / loading and the data storage (getter, setter).
 
