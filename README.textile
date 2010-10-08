@@ -1,4 +1,4 @@
-Purpose:
+h1. Purpose
 
 Think about you can fetch the projects and all the meta informations like releases (and there download URL!) and all other fields using a central API
 And think about you can do this from different palces, drupal.org with project, your own feature server under "yourdomain.org" and what ever you like.
@@ -8,10 +8,10 @@ As i described before, you can handle several sources. That means there is no is
 
 As iam using dbtng this API should be compatible to D6 and D7.
 
-Scope:
+h1. Scope
 That module should be for developers which want to work with the Project informations of Drupal modules/themes/whatever for building anykind of tools.
 
-Usecase:
+h1. Usecase
 -Auto Update-
 Like Drupal module for auto-updating your site. You fetch the current versions available and decide buy GUI what you want to update. The module downloads the module and does the rest.
 
@@ -22,19 +22,19 @@ Well yeah, think about you get a autocompletiton on modules / version / api on t
 
 The initial idea for this came from the http:/drupal.org/project/project_api which does generaly the same, but lacks things like multi-server support or the fetching of releases (yet).
 
-Installation / Usage:
- - Just activate the module and the deps.
- - Then go to the the update feed api configuration admin/settings/update_feed_api_settings and configure your feeds. Look for the example, that should work if you use it for testing.
- - No you can start fetching the projects going to admin/build/refresh_update_feeds
+h1. Installation / Usage
+* Just activate the module and the deps.
+* Then go to the the update feed api configuration admin/settings/update_feed_api_settings and configure your feeds. Look for the example, that should work if you use it for testing.
+* No you can start fetching the projects going to admin/build/refresh_update_feeds
 
 Have fun, takes some time :)
 
-Workflow:
+h1. Workflow
 Update feed entries are featch (project list) and for each project, the project informations and releases are fetched. Those informations are stored in the local database for usage with anything you like.
 Use it for autocompletition or what ever you like. The database will be regenerated using cron jobs and caches.
 
 
-API:
+h1. API
 project.class.inc
   This is a abstraction of a Project. You can load/save/update a project from a Database or from a feed. You will use this container for your purpose like autocompletition.
   It also has an interface to work with the project release (of the current project identified by the server_key, short_name, api version).
