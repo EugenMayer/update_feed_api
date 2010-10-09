@@ -94,3 +94,11 @@ function update_feed_api_autoload_info() {
   );
 }
 
+/**
+ * Implements hook_views_api().
+ */
+function update_feed_api_views_api() {
+  return array(
+    'api' => 2.0,
+  );
+}
