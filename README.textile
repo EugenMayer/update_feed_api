@@ -33,12 +33,12 @@ The initial idea for this came from the http:/drupal.org/project/project_api whi
 h1. Installation / Usage
 # Just activate the module and the deps.
 # Then go to the the update feed api configuration admin/settings/update_feed_api_settings and configure your feeds. 
-  # Look for the example, that should work if you use it for testing.
-  # You can set the stepping, you can calculate 10 seconds for a ten step setup even. Pretty slow due to the XML parsing
-  # Configure the API Versions you want to fetch
+## Look for the example, that should work if you use it for testing.
+## You can set the stepping, you can calculate 10 seconds for a ten step setup even. Pretty slow due to the XML parsing
+## Configure the API Versions you want to fetch
 # Now you can start fetching the projects going to admin/build/refresh_update_feeds
- # Select the feeds you actually want to update
- # Select wheather you want to fetch the release ( takes some time )
+## Select the feeds you actually want to update
+## Select wheather you want to fetch the release ( takes some time )
 
 Have fun, takes some time :)
 
