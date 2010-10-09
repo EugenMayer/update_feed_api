@@ -7,7 +7,6 @@
 /**
  * Implementation of hook_autoload_info().
  */
-
 function update_feed_api_menu() {
   return array(
     'admin/build/refresh_update_feeds' => array(
@@ -29,8 +28,7 @@ function update_feed_api_menu() {
   );
 }
 
-function _update_feed_api_get_feeds() {
-  // Must have the format: Descriptive=css_style,Descriptive2=css_style2..
+function _update_feed_api_get_feeds($feeds_to_fetch = FALSE) {
   $settings = variable_get('update_feed_api_feeds', '');
   $feeds = array();
   if ($settings != '') {
@@ -43,6 +41,12 @@ function _update_feed_api_get_feeds() {
         'server_key' => $feed[1],
         'class' => $feed[2],
       );
+    
+      // dont take any feeds into the result, which are not expected
+      if (is_array($feeds_to_fetch) && array_search($feed['server_key'], $feeds_to_fetch) === FALSE) {
+        continue;
+      }
+      
       // validate
       if(!class_exists($feed['class']) || array_search('IUpdate_feed', class_implements($feed['class'])) === FALSE) {
         drupal_set_message('Cant fetch feed '.$feed['server_key']." as the class ({$feed['class']}) is missing, not loadable or does not implement the IUpdate_feed interface");

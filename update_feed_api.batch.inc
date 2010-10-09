@@ -1,6 +1,6 @@
 <?php
 
-function _update_feed_api_start_refresh_batch() {
+function _update_feed_api_start_refresh_batch($feeds, $fetch_releases = TRUE) {
   // Update the user profiles to add values to newly added profile fields
   $batch = array(
     'title' => t('Updating update-feeds'), // Title to display while running.
@@ -11,24 +11,25 @@ function _update_feed_api_start_refresh_batch() {
     'error_message' => t('Could not update update-feeds. Mabye connection errors occure or missconfigured feeds.'),
     'file' => drupal_get_path('module', 'update_feed_api') . '/update_feed_api.batch.inc',
   );
-  $feeds = _update_feed_api_get_feeds();
+  $feeds = _update_feed_api_get_feeds($feeds);
   if(count($feeds) == 0) {
     drupal_set_message('No feeds configured yet? Go to the '.l('update Feed configuration','admin/settings/update_feed_api_settings'),'warning');
     return '';
   }  
-  $batch['operations'][] = array('_update_feed_api_process_feeds', array($feeds));
+  $batch['operations'][] = array('_update_feed_api_process_feeds', array($feeds, $fetch_releases));
   // clear the tables before we start
   _update_feed_api_clear_tables();
   batch_set($batch);
 }
 
-function _update_feed_api_process_feeds($feeds,&$context) { 
+function _update_feed_api_process_feeds($feeds, $fetch_releases, &$context) { 
   if (!isset($context['sandbox']['progress'])) {
     $context['sandbox']['feeds'] = $feeds;
     $context['sandbox']['progress'] = 0;
     $context['sandbox']['stepping'] = variable_get('update_feed_api_stepping', 10);
     $context['sandbox']['cur_feed_nr'] = -1;
     $context['sandbox']['processing_feed'] = FALSE;
+    $context['sandbox']['fetch_releases'] = $fetch_releases;
   }
   // if no feed is processed or the last is finished, start (initialize) the next one
   if ($context['sandbox']['processing_feed'] == FALSE) {
@@ -57,7 +58,7 @@ function _update_feed_api_process_feeds($feeds,&$context) {
     }
   }
   
-  $status = $context['sandbox']['cur_feed']->fetch_next_projects();
+  $status = $context['sandbox']['cur_feed']->fetch_next_projects($context['sandbox']['fetch_releases'], TRUE);
   if($status === TRUE) {
       $context['finished'] = 1;
   }

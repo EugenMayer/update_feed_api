@@ -62,6 +62,7 @@ abstract class FeedEntryContainer {
     if ($this->dest_table == NULL) {
       throw new Exception("Your implementation(".get_class($this).") of FeedEntryContainer does not set dest_table! "); 
     }
+    
     $fields = $this->infos;
     // Let others add fields
     $this->alter_db_fields($fields);

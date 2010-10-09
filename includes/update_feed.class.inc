@@ -11,7 +11,7 @@ interface IUpdate_feed {
   public function fetch_project_list();
   // fetches the next set of projects. Should return TRUE if finished
   // or an integer for the turns needed to finish. Mostly needed for batch runs 
-  public function fetch_next_projects();
+  public function fetch_next_projects($fetch_releases = TRUE, $save = TRUE);
   public function overall_project_count();
   public function allready_fetched_count();
   public function host();
@@ -62,7 +62,7 @@ class Update_feed implements IUpdate_feed{
     }
   }
   
-  public function fetch_next_projects() {
+  public function fetch_next_projects($fetch_releases = TRUE, $save = TRUE) {
     if($this->cur_pos < $this->projects_count) {
       // define the border, exclusivly
       $to = $this->cur_pos + $this->stepping;
@@ -72,7 +72,7 @@ class Update_feed implements IUpdate_feed{
       foreach($projects_shortinfo as $p) {
         // we dont fetch releases yet, just for debuuging
         // the result is an array of projects for this project, as they are seperated by the API key
-        $projects = $this->fetch_project_details($p, TRUE, TRUE);
+        $projects = $this->fetch_project_details($p, $fetch_releases, $save);
       }
       // we are done, set the new posion and return how many steps we will need to finish all projects
       $this->cur_pos = $to;
@@ -100,7 +100,16 @@ class Update_feed implements IUpdate_feed{
       $project_shortinfo['title'] = $xpath->query("./title", $p)->item(0)->nodeValue;
       // do we need the link?
       $project_shortinfo['link'] = $xpath->query("./link", $p)->item(0)->nodeValue;
-      $apis = $xpath->query("./api_versions/api_version", $p);#
+      $terms = array();
+      $ts = $xpath->query("//terms/term", $doc);
+      foreach($ts as $term) {
+        $name = $xpath->query("./name", $term)->item(0)->nodeValue;
+        $value = $xpath->query("./value", $term)->item(0)->nodeValue;
+        
+        $terms[$name] = $value;
+      }
+      $project_shortinfo['terms'] = $terms;
+      $apis = $xpath->query("./api_versions/api_version", $p);
       foreach($apis as $api) {
         $project_shortinfo['apis'][] = $api->nodeValue;
       }

@@ -56,8 +56,7 @@ class Project extends FeedEntryContainer {
   }
   
   protected function validate_infos($infos) {
-    $req = array ( 'title', 'short_name', 'api_version', 'recommended_major', 'supported_majors', 
-                  'default_major', 'project_status', 'link',);
+    $req = array ( 'title', 'short_name', 'api_version', 'default_major', 'project_status', 'link',);
     $diff = array_diff($req, array_keys($infos));
     if (count($diff) >0 ) {
       throw new Exception('Not all required infos set from project. Missing: ('.join(',',$diff).')');
