@@ -4,9 +4,8 @@
 // Copyright (c) 2010 KontextWork
 // Author: Eugen Mayer
 
-
 interface IUpdate_feed {
-  public function __construct($host, $server_key, $stepping = 10, $projects_count = NULL);
+  public function __construct($host, $server_key, $stepping = 5, $projects_count = NULL);
   // should fetch the whole project list. That what fetch_next_projects operates on
   // This should also initialize the count of the projects overall
   public function fetch_project_list();
@@ -25,10 +24,11 @@ class Update_feed implements IUpdate_feed{
   protected $stepping;
   protected $cur_pos = 0;
   protected $projects_count = NULL;
-  public function __construct($host, $server_key, $stepping = 10, $projects_count = NULL) {
+  
+  public function __construct($host, $server_key, $stepping = 5, $projects_count = NULL) {
     $this->host = $host;
     $this->server_key = $server_key;
-    $this->cur_pos = 1;
+    $this->cur_pos = 0;
     $this->stepping = $stepping;
     $this->projects_count = $projects_count;
   }
@@ -156,7 +156,7 @@ class Update_feed implements IUpdate_feed{
         $project_obj = new Project($infos, $terms, $this->server_key);
       }
       catch (Exception $e) {
-        drupal_set_message('Could not create project '.$infos['short_name'].' due to missing fields. Error: '.$e->getMessage());
+        drupal_set_message('Could not create project '.$infos['short_name'].' due to missing fields. Error: '.$e->getMessage(), 'warning');
         // Could not create release, most probably validation failed, so fields missing
         // TODO: log this?
         continue;
@@ -203,7 +203,7 @@ class Update_feed implements IUpdate_feed{
         $project_obj->add_release($infos, $terms);
       }
       catch(Exception $e) {
-        drupal_set_message('Could not create the release "'.$infos['name'].'"('.$infos['tag'].') of project "'.$project_obj->get_info('short_name').'" due to missing fields. Error: '.$e->getMessage());
+        drupal_set_message('Could not create the release "'.$infos['name'].'"('.$infos['tag'].') of project "'.$project_obj->get_info('short_name').'" due to missing fields. Error: '.$e->getMessage(), 'warning');
         // Could not create release, most probably validation failed, so fields missing
         // TODO: log this?
         continue;

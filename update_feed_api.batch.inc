@@ -44,7 +44,7 @@ function _update_feed_api_process_feeds($feeds,&$context) {
     $host = $context['sandbox']['feeds'][  $context['sandbox']['cur_feed_nr']] ['host'];
     $server_key = $context['sandbox']['feeds'][  $context['sandbox']['cur_feed_nr'] ]['server_key'];
     // create the feed reader object used by all the next batch runs until its finished
-    $context['sandbox']['cur_feed'] = new $class($host, $server_key, $context['sandbox']['stepping'], 10);
+    $context['sandbox']['cur_feed'] = new $class($host, $server_key, $context['sandbox']['stepping']);
     // fetch the complete project list and save it in a temporary file
     try {
       $context['sandbox']['cur_feed']->fetch_project_list();
@@ -63,7 +63,6 @@ function _update_feed_api_process_feeds($feeds,&$context) {
   }
   // else
   $context['finished'] = (1 / $status);
-  dsm($context['finished']);
 }
 
 function _update_feed_api_refresh_finished() {
