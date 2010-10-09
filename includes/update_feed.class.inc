@@ -4,15 +4,18 @@
 // Copyright (c) 2010 KontextWork
 // Author: Eugen Mayer
 
-
 interface IUpdate_feed {
-  public function __construct($host, $server_key, $stepping = 10, $projects_count = NULL);
+  public function __construct($host, $server_key, $stepping = 5, $projects_count = NULL);
   // should fetch the whole project list. That what fetch_next_projects operates on
   // This should also initialize the count of the projects overall
   public function fetch_project_list();
   // fetches the next set of projects. Should return TRUE if finished
   // or an integer for the turns needed to finish. Mostly needed for batch runs 
   public function fetch_next_projects();
+  public function overall_project_count();
+  public function allready_fetched_count();
+  public function host();
+  public function server_key();
 }
 /* basic class to fetch a update feed and the release feed
  * to extend this, you most probably only want to override
@@ -25,14 +28,15 @@ class Update_feed implements IUpdate_feed{
   protected $stepping;
   protected $cur_pos = 0;
   protected $projects_count = NULL;
-  public function __construct($host, $server_key, $stepping = 10, $projects_count = NULL) {
+  
+  public function __construct($host, $server_key, $stepping = 5, $projects_count = NULL) {
     $this->host = $host;
     $this->server_key = $server_key;
-    $this->cur_pos = 1;
+    $this->cur_pos = 0;
     $this->stepping = $stepping;
     $this->projects_count = $projects_count;
   }
-
+  
   public function fetch_project_list() {
     $url = $this->host.$this->project_list_url();
     $result = drupal_http_request($url);
@@ -156,7 +160,7 @@ class Update_feed implements IUpdate_feed{
         $project_obj = new Project($infos, $terms, $this->server_key);
       }
       catch (Exception $e) {
-        drupal_set_message('Could not create project '.$infos['short_name'].' due to missing fields. Error: '.$e->getMessage());
+        drupal_set_message('Could not create project '.$infos['short_name'].' due to missing fields. Error: '.$e->getMessage(), 'warning');
         // Could not create release, most probably validation failed, so fields missing
         // TODO: log this?
         continue;
@@ -203,7 +207,7 @@ class Update_feed implements IUpdate_feed{
         $project_obj->add_release($infos, $terms);
       }
       catch(Exception $e) {
-        drupal_set_message('Could not create the release "'.$infos['name'].'"('.$infos['tag'].') of project "'.$project_obj->get_info('short_name').'" due to missing fields. Error: '.$e->getMessage());
+        drupal_set_message('Could not create the release "'.$infos['name'].'"('.$infos['tag'].') of project "'.$project_obj->get_info('short_name').'" due to missing fields. Error: '.$e->getMessage(), 'warning');
         // Could not create release, most probably validation failed, so fields missing
         // TODO: log this?
         continue;
@@ -217,5 +221,21 @@ class Update_feed implements IUpdate_feed{
   
   protected function project_data_url() {
     return '/release-history/%p/%api';
+  }
+  
+  public function overall_project_count() {
+    return $this->projects_count;
+  }
+  
+  public function allready_fetched_count() {
+    return $this->cur_pos;
+  }
+
+  public function host() {
+      return $this->host;
+  }
+  
+  public function server_key() {
+    return $this->server_key;
   }
 }
