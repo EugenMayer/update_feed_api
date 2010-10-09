@@ -50,17 +50,17 @@ function _update_feed_api_get_schema() {
       ),
       'recommended_major' => array(
         'type' => 'varchar',
-        'length' => '4',
+        'length' => '40',
         'default' => '',
       ),
       'supported_majors' => array(
         'type' => 'varchar',
-        'length' => '4',
+        'length' => '40',
         'default' => '',
       ),
       'default_major' => array(
         'type' => 'varchar',
-        'length' => '4',
+        'length' => '40',
         'default' => '',
       ),
       'project_status' => array(
@@ -113,7 +113,7 @@ function _update_feed_api_get_schema() {
       ),
       'version_major' => array(
         'type' => 'varchar',
-        'length' => '4',
+        'length' => '40',
         'default' => '',
       ),
       'version_extra' => array(
@@ -146,8 +146,7 @@ function _update_feed_api_get_schema() {
         'default' => '',
       ),
       'filesize' => array(
-        'type' => 'varchar',
-        'length' => '50',
+        'type' => 'int',
         'default' => '',
       ),
       'terms' => array(
