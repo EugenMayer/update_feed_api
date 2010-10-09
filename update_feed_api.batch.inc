@@ -1,5 +1,27 @@
 <?php
 
+function _update_feed_api_start_refresh_batch() {
+  // Update the user profiles to add values to newly added profile fields
+  $batch = array(
+    'title' => t('Updating update-feeds'), // Title to display while running.
+    'operations' => array(), // Operations to complete, in order. Defined below.
+    'finished' => '_update_feed_api_refresh_finished', // Last function to call.
+    'init_message' => t('Initializing...'),
+    'progress_message' => t('Updated @current out of @total.'),
+    'error_message' => t('Could not update update-feeds. Mabye connection errors occure or missconfigured feeds.'),
+    'file' => drupal_get_path('module', 'update_feed_api') . '/update_feed_api.batch.inc',
+  );
+  $feeds = _update_feed_api_get_feeds();
+  if(count($feeds) == 0) {
+    drupal_set_message('No feeds configured yet? Go to the '.l('update Feed configuration','admin/settings/update_feed_api_settings'),'warning');
+    return '';
+  }  
+  $batch['operations'][] = array('_update_feed_api_process_feeds', array($feeds));
+  // clear the tables before we start
+  _update_feed_api_clear_tables();
+  batch_set($batch);
+}
+
 function _update_feed_api_process_feeds($feeds,&$context) { 
   if (!isset($context['sandbox']['progress'])) {
     $context['sandbox']['feeds'] = $feeds;
@@ -8,27 +30,28 @@ function _update_feed_api_process_feeds($feeds,&$context) {
     $context['sandbox']['cur_feed_nr'] = -1;
     $context['sandbox']['processing_feed'] = FALSE;
   }
-  // if no feed is procgressedd or the last is finished, start the next one
-  if($context['sandbox']['processing_feed'] == FALSE) {
-    // check if we are finished
+  // if no feed is processed or the last is finished, start (initialize) the next one
+  if ($context['sandbox']['processing_feed'] == FALSE) {
+    // check if we are finished overall
     if($context['sandbox']['cur_feed_nr'] == count($context['sandbox']['feeds'])) {
       $context['finished'] = 1;
       return;
     }
+    // we are not finished, so proceed to the next index
     $context['sandbox']['cur_feed_nr']++;
-    // fetch the feed vars
+    // fetch the feed vars, helper only
     $class = $context['sandbox']['feeds'][ $context['sandbox']['cur_feed_nr'] ]['class'];
     $host = $context['sandbox']['feeds'][  $context['sandbox']['cur_feed_nr']] ['host'];
     $server_key = $context['sandbox']['feeds'][  $context['sandbox']['cur_feed_nr'] ]['server_key'];
-    // create the feed reader
-    $context['sandbox']['cur_feed'] = new $class($host, $server_key, $context['sandbox']['stepping']);
+    // create the feed reader object used by all the next batch runs until its finished
+    $context['sandbox']['cur_feed'] = new $class($host, $server_key, $context['sandbox']['stepping'], 10);
     // fetch the complete project list and save it in a temporary file
     try {
       $context['sandbox']['cur_feed']->fetch_project_list();
       $context['sandbox']['processing_feed'] = TRUE;
     }
     catch( Exception $e) {
-      drupal_set_message($e->getMessage(),'error');
+      drupal_set_message($e->getMessage(), 'error');
       // this feed failed, proceed to the next
       $context['sandbox']['processing_feed'] = FALSE;
     }
@@ -40,6 +63,7 @@ function _update_feed_api_process_feeds($feeds,&$context) {
   }
   // else
   $context['finished'] = (1 / $status);
+  dsm($context['finished']);
 }
 
 function _update_feed_api_refresh_finished() {

@@ -32,3 +32,24 @@ function update_feed_api_admin_settings() {
   );
   return system_settings_form($form);
 }
+
+function update_feed_api_refresh_form(&$form_state) {
+   $form['update_feed_container'] = array(
+   '#type' => 'fieldset',
+   '#title' => 'Update update-feeds',
+   '#description' => 'Regenerate all projects and there release. <strong>Be aware, this deletes all old entries!</strong>',
+   '#collapsible' => TRUE,
+   '#collapsed' => FALSE,
+  );
+  
+  $form['update_feed_container']['start'] = array(
+    '#type' => 'submit',
+    '#value' => t('Refresh'),
+  );
+  return $form;
+}
+
+function update_feed_api_refresh_form_submit($form, &$form_state) {
+  require_once 'update_feed_api.batch.inc';
+  _update_feed_api_start_refresh_batch();
+}
