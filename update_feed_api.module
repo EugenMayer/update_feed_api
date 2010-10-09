@@ -102,3 +102,13 @@ function update_feed_api_views_api() {
     'api' => 2.0,
   );
 }
+
+/**
+ * Returns some drupal core version.s
+ *
+ * Options callback for views filter.
+ */
+function _udpate_feed_api_core_versions() {
+  return drupal_map_assoc(array('4.1.x', '4.2.x', '5.x', '6.x', '7.x', '8.x'));
+  );
+}
