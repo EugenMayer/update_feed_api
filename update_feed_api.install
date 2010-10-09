@@ -103,7 +103,7 @@ function _update_feed_api_get_schema() {
       ),
       'version' => array(
         'type' => 'varchar',
-        'length' => '15',
+        'length' => '30',
         'default' => '',
       ),
       'tag' => array(

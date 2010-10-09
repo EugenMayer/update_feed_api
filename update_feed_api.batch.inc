@@ -62,6 +62,14 @@ function _update_feed_api_process_feeds($feeds,&$context) {
       $context['finished'] = 1;
   }
   // else
+  $max_feeds = count($context['sandbox']['feeds']);
+  // as we start from zero
+  $cur_feed_nr = $context['sandbox']['cur_feed_nr'] +1;
+  $cur_projects_nr = $context['sandbox']['cur_feed']->allready_fetched_count();
+  $overall_projects_nr = $context['sandbox']['cur_feed']->overall_project_count();
+  $server_key = $context['sandbox']['cur_feed']->server_key();
+  
+  $context['message'] = "Fetching feed($server_key) which {$cur_feed_nr} of {$max_feeds}. Fetched projects $cur_projects_nr of $overall_projects_nr";
   $context['finished'] = (1 / $status);
 }
 

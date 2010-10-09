@@ -12,6 +12,10 @@ interface IUpdate_feed {
   // fetches the next set of projects. Should return TRUE if finished
   // or an integer for the turns needed to finish. Mostly needed for batch runs 
   public function fetch_next_projects();
+  public function overall_project_count();
+  public function allready_fetched_count();
+  public function host();
+  public function server_key();
 }
 /* basic class to fetch a update feed and the release feed
  * to extend this, you most probably only want to override
@@ -32,7 +36,7 @@ class Update_feed implements IUpdate_feed{
     $this->stepping = $stepping;
     $this->projects_count = $projects_count;
   }
-
+  
   public function fetch_project_list() {
     $url = $this->host.$this->project_list_url();
     $result = drupal_http_request($url);
@@ -217,5 +221,21 @@ class Update_feed implements IUpdate_feed{
   
   protected function project_data_url() {
     return '/release-history/%p/%api';
+  }
+  
+  public function overall_project_count() {
+    return $this->projects_count;
+  }
+  
+  public function allready_fetched_count() {
+    return $this->cur_pos;
+  }
+
+  public function host() {
+      return $this->host;
+  }
+  
+  public function server_key() {
+    return $this->server_key;
   }
 }
