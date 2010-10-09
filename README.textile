@@ -1,34 +1,42 @@
 h1. Purpose
 
-Think about you can fetch the projects and all the meta informations like releases (and there download URL!) and all other fields using a central API
-And think about you can do this from different palces, drupal.org with project, your own feature server under "yourdomain.org" and what ever you like.
+Think about you can fetch the projects and all the meta informations like releases (you can delay the release fetching making it lazy) and all other fields using a central API.
+The special thing about this is can do this from different places (and update feed implementation), drupal.org with project, your own feature server under "yourdomain.org" and what ever you like.
 All you need is a update-feed integration like the one from Project or Fserver, or your write your own fetch handler fetching those informations out of .. hmm, git, some DB, a FILE?
 
-As i described before, you can handle several sources. That means there is no issue having views on your own feature server and on drupal.org. Both projects are saved and can be selected by there source. Easy.
-
-As iam using dbtng this API should be compatible to D6 and D7.
+Later on, you can seperate projects by the place they have been fetched.
+As i described before, you can handle several sources. That means there is no issue having views on your own feature server and on drupal.org. Both projects are saved and can be selected by there source.
 
 h1. Features
 
 * Can handle several sources ( x-Feature Server, x-Project Servers ) at the same time (no problems with overlays)
+* Using dbtng its working under D7
 * Views integration (thanks Daniel!)
-* Fetches releases (also with lazy fetching)
-* Can filter on APIs (8.x, 7.x etc.)* 
+* You can search in the projects using an easy API
+* Fetches releases (also with lazy fetching on demand)
+* Can filter on APIs (8.x, 7.x etc.)
 * OOP implementation. Add your own feed-fetchers, formats or whatever you like.
 
 h1. Usecase
 
+h3. drupalmodules.com
+
+They list and rate all modules (and releases)of drupal.org. Now they could do this using this api from different servers like the feature server of Open Atrium
+
+h3. Doxygen of all moduleS?
+
+You want to generate doxygen docs for all projects and all their releases. You can use the API to fetch them and later show them on you site.
+Yes this can be done using CVS also, but what about an arbitary feature server or your own server? The update_feed_api makes it possible to implement this for more generalized.
+
 h3.  Auto Update
 
-Like Drupal module for auto-updating your site. You fetch the current versions available and decide buy GUI what you want to update. The module downloads the module and does the rest.
+Like Drupal module for auto-updating your site. You fetch the current versions available and decide buy GUI what you want to update.
 
 h3. Drush module / version autocompletition
 
 Well yeah, think about you get a autocompletiton on modules / version / api on the console. Lovely!
 
-h3. Tell me!
 
-The initial idea for this came from the http:/drupal.org/project/project_api which does generaly the same, but lacks things like multi-server support or the fetching of releases (yet).
 
 h1. Installation / Usage
 # Just activate the module and the deps.
@@ -49,27 +57,54 @@ Use it for autocompletition or what ever you like. The database will be regenera
 
 
 h1. API
+h2. Developers API (thats what you most probably will need for the start)
 
+bq. All those methods are in the update_feed_api.api.inc file.
+
+h3. update_feed_api_search_projects($server_key, $api_version, $search)
+
+bq. Search and get projects of a specific api of a specifc server matching the short_name / title.
+
+h3. update_feed_api_get_projects($server_key, $api_version, $load_releases = TRUE)
+
+bq. Load all projects of a specific api of a specifc server.
+
+h3. update_feed_api_get_project($server_key, $short_name, $api_version, $load_releases = TRUE) 
+
+bq. Load a specific projects of a specific api of a specific server.
+
+h3. update_feed_api_api_get_project_by_pid($pid, $load_releases = TRUE)
+
+bq. Load  same as update_feed_api_get_project, but loading by pid directly.
+
+h3. update_feed_api_get_project_apis($server_key, $short_name)
+
+bq. Get all available api version for this project.
+
+h3. update_feed_api_fetch_releases($project)
+
+bq. Running this for a project, the update-feed for this project is read and all releases are extracted.
+
+h2. Architecture
 h3. project.class.inc
 
-  This is a abstraction of a Project. You can load/save/update a project from a Database or from a feed. You will use this container for your purpose like autocompletition.
+bq.   This is a abstraction of a Project. You can load/save/update a project from a Database or from a feed. You will use this container for your purpose like autocompletition.
   It also has an interface to work with the project release (of the current project identified by the server_key, short_name, api version).
   You can extend this class with needed methods for your applications or change some of its behavior
   
 h3. release.class.inc
 
-  Container for a release with its meta data. You can load/save/update a release using this class (or the factory). Exactly the same interface as a release.
+bq. Container for a release with its meta data. You can load/save/update a release using this class (or the factory). Exactly the same interface as a release.
   
 h3. update_feed.class.inc
 
-  A basic implementation of a update feed fetcher for drupalas "Project" module (like its used on drupal.org) and for the feature server. You can change the way sources are fetched or from where.
+bq. A basic implementation of a update feed fetcher for drupalas "Project" module (like its used on drupal.org) and for the feature server. You can change the way sources are fetched or from where.
   Paths on the server are abstracted with tokens, so you can override and redefine you own protocols with only some few lines of code
   
 h3. factories.class.inc
 
-  Just some factories to load Projects / Releases
+bq. Just some factories to load Projects / Releases
   
 h3. feedentrycontainer.class.inc
 
-  Thats actually the basic abstract class of a Project / Release handling all the shared tasks like saving / loading and the data storage (getter, setter).
-
+bq. Thats actually the basic abstract class of a Project / Release handling all the shared tasks like saving / loading and the data storage (getter, setter).

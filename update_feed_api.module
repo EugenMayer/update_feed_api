@@ -4,6 +4,7 @@
 // Copyright (c) 2010 KontextWork
 // Author: Eugen Mayer
 
+require_once 'update_feed_api.api.inc';
 /**
  * Implementation of hook_autoload_info().
  */

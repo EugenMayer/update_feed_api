@@ -73,6 +73,10 @@ function _update_feed_api_get_schema() {
         'length' => '255',
         'default' => '',
       ),
+      'full_fetched' => array(
+        'type' => 'int',
+        'default' => 0,
+      ),
       'terms' => array(
         'type' => 'blob',
         'default' => '',

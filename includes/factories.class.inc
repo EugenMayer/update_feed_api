@@ -5,7 +5,7 @@
 // Author: Eugen Mayer
 
 class Project_factory {
-  static public function load_by_pid($pid) {
+  static public function load_by_pid($pid, $load_release = TRUE) {
     $query = db_select('update_feed_api_projects','ufap');
     $query->conditions(array('ufap.pid' => $pid));
     $query->fields('ufap');
@@ -14,10 +14,10 @@ class Project_factory {
     if ($result == NULL) {
       return FALSE;
     }
-    return self::init_from_db($result);
+    return self::init_from_db($result, $load_release);
   }
   
-  static public function load_project($server_key, $short_name, $api) {
+  static public function load_project($server_key, $short_name, $api, $load_release = TRUE) {
     $query = db_select('update_feed_api_projects','ufap');
     $query->conditions( array('ufap.server_key' => $server_key,'ufap.short_name' => $short_name, 'ufap.api_version' => $api));
     $query->fields('ufap',array('pid'));
@@ -27,15 +27,39 @@ class Project_factory {
       return FALSE;
     }
     
-    return self::load_by_pid($result->pid);
+    return self::load_by_pid($result->pid, $load_release);
   }
   
-  static protected function init_from_db($array) {
+  static public function load_projects($server_key, $api, $load_release = TRUE, $search = NULL) {
+    $query = db_select('update_feed_api_projects','ufap');
+    $query->conditions( array('ufap.server_key' => $server_key, 'ufap.api_version' => $api));
+    if($search != NULL && is_string($search)) {
+      $query->condition( 
+        db_or
+          ->condition( 'ufap.short_name', "%" . db_like($search)  . "%", ' LIKE ')
+          ->condition( 'ufap.title', "%" . db_like($search)  . "%", ' LIKE ')
+      );
+    }
+    $query->fields('ufap',array('pid'));
+    $result = $query->execute();
+    if ($result == NULL) {
+      return FALSE;
+    }
+    
+    $projects = array();
+    foreach($result as $record) {
+      $project = self::load_by_pid($record->pid, $load_release);
+      $projects[$project->get_info('short_name')] = $project;
+    }
+    return $projects;
+  }
+  
+  static protected function init_from_db($array, $load_release = TRUE) {
     $terms = unserialize($array['terms']);
     $server_key = $array['server_key'];
     unset($array['terms'], $array['server_key']);
     $info = $array;
-    return new Project($info, $terms, $server_key);
+    return new Project($info, $terms, $server_key, $load_release);
   }
 }
 

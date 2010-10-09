@@ -11,7 +11,10 @@ interface IUpdate_feed {
   public function fetch_project_list();
   // fetches the next set of projects. Should return TRUE if finished
   // or an integer for the turns needed to finish. Mostly needed for batch runs 
-  public function fetch_next_projects($fetch_releases = TRUE, $save = TRUE);  
+  public function fetch_next_projects($fetch_releases = TRUE, $save = TRUE);
+  // use this to fetch project informations. This is used for fetching releases after lazy fetching the project list
+  // mostly this is done on demand to reduce load
+  public function fetch_project($projects);
   public function overall_project_count();
   public function allready_fetched_count();
   public function host();
@@ -100,6 +103,18 @@ class Update_feed implements IUpdate_feed{
 
     // if last step
     return TRUE;
+  }
+  
+  public function fetch_project($project, $api_versions = NULL) {
+    if($api_versions == NULL)  {
+      $api_versions = array( $project->get_info('api_version'));
+    }
+    $project_info = array(
+      'short_name' => $project->get_info('short_name'),
+      'apis' => $api_versions,
+    );
+
+    $this->fetch_project_details($project_info, TRUE, TRUE);
   }
   
   protected function fetch_projects($from, $to){
@@ -206,11 +221,14 @@ class Update_feed implements IUpdate_feed{
       }
       if($fetch_releases) {
         $this->fetch_releases($doc, $project_obj);
+        $this->set_info('full_fetched', 1);
       }
+      
       if($save) {
         $project_obj->save();
       }
-      $projects_by_api[] = $project_obj;
+      
+      $projects_by_api[$api] = $project_obj;
     }
     return $projects_by_api;
   }
