@@ -8,9 +8,13 @@ As i described before, you can handle several sources. That means there is no is
 
 As iam using dbtng this API should be compatible to D6 and D7.
 
-h1. Scope
+h1. Features
 
-That module should be for developers which want to work with the Project informations of Drupal modules/themes/whatever for building anykind of tools.
+* Can handle several sources ( x-Feature Server, x-Project Servers ) at the same time (no problems with overlays)
+* Views integration (thanks Daniel!)
+* Fetches releases (also with lazy fetching)
+* Can filter on APIs (8.x, 7.x etc.)* 
+* OOP implementation. Add your own feed-fetchers, formats or whatever you like.
 
 h1. Usecase
 
