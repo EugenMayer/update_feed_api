@@ -7,7 +7,7 @@ function _update_feed_api_start_refresh_batch($feeds, $fetch_releases = TRUE) {
     'operations' => array(), // Operations to complete, in order. Defined below.
     'finished' => '_update_feed_api_refresh_finished', // Last function to call.
     'init_message' => t('Initializing...'),
-    'progress_message' => t('Updated @current out of @total.'),
+    //'progress_message' => t('Updated @current out of @total.'),
     'error_message' => t('Could not update update-feeds. Mabye connection errors occure or missconfigured feeds.'),
     'file' => drupal_get_path('module', 'update_feed_api') . '/update_feed_api.batch.inc',
   );
@@ -18,7 +18,10 @@ function _update_feed_api_start_refresh_batch($feeds, $fetch_releases = TRUE) {
   }  
   $batch['operations'][] = array('_update_feed_api_process_feeds', array($feeds, $fetch_releases));
   // clear the tables before we start
-  _update_feed_api_clear_tables();
+  foreach($feeds as $feed) {
+    _update_feed_api_clear_tables($feed['server_key']);
+  }
+  
   batch_set($batch);
 }
 
@@ -28,9 +31,11 @@ function _update_feed_api_process_feeds($feeds, $fetch_releases, &$context) {
     $context['sandbox']['progress'] = 0;
     $context['sandbox']['stepping'] = variable_get('update_feed_api_stepping', 10);
     $context['sandbox']['cur_feed_nr'] = -1;
+    $context['sandbox']['allowed_api_version'] = _update_feed_api_allowed_apis();
     $context['sandbox']['processing_feed'] = FALSE;
     $context['sandbox']['fetch_releases'] = $fetch_releases;
   }
+
   // if no feed is processed or the last is finished, start (initialize) the next one
   if ($context['sandbox']['processing_feed'] == FALSE) {
     // check if we are finished overall
@@ -45,7 +50,8 @@ function _update_feed_api_process_feeds($feeds, $fetch_releases, &$context) {
     $host = $context['sandbox']['feeds'][  $context['sandbox']['cur_feed_nr']] ['host'];
     $server_key = $context['sandbox']['feeds'][  $context['sandbox']['cur_feed_nr'] ]['server_key'];
     // create the feed reader object used by all the next batch runs until its finished
-    $context['sandbox']['cur_feed'] = new $class($host, $server_key, $context['sandbox']['stepping']);
+    
+    $context['sandbox']['cur_feed'] = new $class($host, $server_key, $context['sandbox']['stepping'], NULL, $context['sandbox']['allowed_api_version']);
     // fetch the complete project list and save it in a temporary file
     try {
       $context['sandbox']['cur_feed']->fetch_project_list();

@@ -32,6 +32,7 @@ class Release extends FeedEntryContainer{
   
   protected function alter_db_fields(&$fields) {
     $fields['pid'] = $this->parent_project->get_info('pid');
+    $fields['server_key'] = $this->parent_project->get_info('server_key');
     parent::alter_db_fields($fields);
   }
   

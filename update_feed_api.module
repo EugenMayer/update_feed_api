@@ -10,7 +10,7 @@
 function update_feed_api_menu() {
   return array(
     'admin/build/refresh_update_feeds' => array(
-       'title' => 'Refresh Update Feeds',
+       'title' => 'Refresh update feeds',
        'page callback' => 'drupal_get_form',
        'page arguments' => array('update_feed_api_refresh_form'),
        'access arguments' => array('administer site configuration'),
@@ -59,9 +59,26 @@ function _update_feed_api_get_feeds($feeds_to_fetch = FALSE) {
   return $feeds;
 }
 
-function _update_feed_api_clear_tables() {
-  db_query('TRUNCATE TABLE {update_feed_api_projects}');
-  db_query('TRUNCATE TABLE {update_feed_api_releases}');
+function _update_feed_api_allowed_apis()  {
+  $settings = variable_get('update_feed_api_allowed_apis', array('7.x','6.x','5.x'));
+  $settings = array_values($settings);
+  $settings = array_filter($settings,'_update_feed_api_checkbox_filter');
+  return $settings;
+}
+
+function _update_feed_api_clear_tables($server_key = NULL) {
+  $query_ufap = db_delete('update_feed_api_projects');
+  $query_ufar = db_delete('update_feed_api_releases');
+  if($server_key == NULL) {
+    $query_ufap->execute();
+    $query_ufar->execute();
+  }
+  else {
+    $query_ufap->condition('server_key',$server_key);
+    $query_ufar->condition('server_key',$server_key);
+    $query_ufap->execute();
+    $query_ufar->execute();
+  }
 }
 
 function update_feed_api_autoload_info() {
@@ -96,6 +113,14 @@ function update_feed_api_autoload_info() {
       'file path' => $path,
     ),
   );
+}
+
+function _update_feed_api_checkbox_filter($i) {
+  if($i === 0) {
+    return FALSE;
+  }
+  
+  return TRUE;
 }
 
 /**

@@ -95,6 +95,12 @@ function _update_feed_api_get_schema() {
         'type' => 'int',
         'not null' => TRUE,
       ),
+      'server_key' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'default' => '',
+        'not null' => TRUE,
+      ),
       'name' => array(
         'type' => 'varchar',
         'length' => '255',

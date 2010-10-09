@@ -5,18 +5,19 @@
 // Author: Eugen Mayer
 
 interface IUpdate_feed {
-  public function __construct($host, $server_key, $stepping = 5, $projects_count = NULL);
+  public function __construct($host, $server_key, $stepping = 5, $projects_count = NULL, $allowed_api_version = array('7.x', '6.x', '5.x'));
   // should fetch the whole project list. That what fetch_next_projects operates on
   // This should also initialize the count of the projects overall
   public function fetch_project_list();
   // fetches the next set of projects. Should return TRUE if finished
   // or an integer for the turns needed to finish. Mostly needed for batch runs 
-  public function fetch_next_projects($fetch_releases = TRUE, $save = TRUE);
+  public function fetch_next_projects($fetch_releases = TRUE, $save = TRUE);  
   public function overall_project_count();
   public function allready_fetched_count();
   public function host();
   public function server_key();
 }
+
 /* basic class to fetch a update feed and the release feed
  * to extend this, you most probably only want to override
  * project_list_url
@@ -28,13 +29,15 @@ class Update_feed implements IUpdate_feed{
   protected $stepping;
   protected $cur_pos = 0;
   protected $projects_count = NULL;
+  protected $allowed_api_versions = array();
   
-  public function __construct($host, $server_key, $stepping = 5, $projects_count = NULL) {
+  public function __construct($host, $server_key, $stepping = 5, $projects_count = NULL, $allowed_api_version = array('7.x', '6.x', '5.x')) {
     $this->host = $host;
     $this->server_key = $server_key;
     $this->cur_pos = 0;
     $this->stepping = $stepping;
     $this->projects_count = $projects_count;
+    $this->allowed_api_versions = $allowed_api_version;
   }
   
   public function fetch_project_list() {
@@ -45,7 +48,7 @@ class Update_feed implements IUpdate_feed{
     }
     
     $tmp = file_directory_temp();
-    $filename = uniqid().'xml';
+    $filename = uniqid().'.xml';
     $path = "$tmp/$filename";
     file_put_contents($path,$result->data);
     $this->project_list_store = $path;
@@ -72,7 +75,22 @@ class Update_feed implements IUpdate_feed{
       foreach($projects_shortinfo as $p) {
         // we dont fetch releases yet, just for debuuging
         // the result is an array of projects for this project, as they are seperated by the API key
-        $projects = $this->fetch_project_details($p, $fetch_releases, $save);
+        if($fetch_releases) {
+          $projects = $this->fetch_project_details($p, $fetch_releases, $save);
+        } 
+        else {
+          // lazy fetching
+          $apis = $p['apis'];
+          $terms = $p['terms'];
+          unset($p['apis'], $p['terms']);
+          $infos = $p;
+          foreach($apis as $api) {
+            $infos['api_version'] = $api;
+            $project = new Project($infos, $terms, $this->server_key);
+            $project->save();
+          }
+        }
+        
       }
       // we are done, set the new posion and return how many steps we will need to finish all projects
       $this->cur_pos = $to;
@@ -112,6 +130,18 @@ class Update_feed implements IUpdate_feed{
       $apis = $xpath->query("./api_versions/api_version", $p);
       foreach($apis as $api) {
         $project_shortinfo['apis'][] = $api->nodeValue;
+      }
+      
+      // if there are not apis, dont add that project
+      if(!is_array($project_shortinfo['apis'])) {
+        continue;
+      }
+      // filter all not allowed APIs
+      $project_shortinfo['apis'] = array_intersect($this->allowed_api_versions, $project_shortinfo['apis']);
+      
+      // if no apis left, dont add the project
+      if(count($project_shortinfo['apis']) == 0) {
+        continue;
       }
       // on one sever, the short_name is unique
       $result[$project_shortinfo['short_name']] = $project_shortinfo;
@@ -246,5 +276,22 @@ class Update_feed implements IUpdate_feed{
   
   public function server_key() {
     return $this->server_key;
+  }
+  
+  public function __destruct() {
+    unset($this->project_list_store);
+  }
+}
+
+class Fserver_update_feed {
+  public function __construct($host, $server_key, $stepping = 5, $projects_count = NULL) {
+    parent::__construct($host, $server_key, $stepping = 5, $projects_count = NULL);
+  }
+  protected function project_list_url() {
+    return '/fserver/project-list/all';
+  }
+  
+  protected function project_data_url() {
+    return '/fserver/%p/%api';
   }
 }
