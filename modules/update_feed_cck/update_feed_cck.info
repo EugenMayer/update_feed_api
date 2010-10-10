@@ -1,0 +1,8 @@
+; $Id$
+name = "Update feed api - CCK integration"
+core = "6.x"
+description = "A cck field for a module fetched by the udpate_feed"
+package = CCK
+dependencies[] = content
+dependencies[]=ctools
+dependencies[]=update_feed_api

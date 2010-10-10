@@ -26,7 +26,7 @@ function update_feed_api_admin_settings() {
     '#description' => t('How many projects should be processed at once. Keep this a small number on small servers'),
     '#default_value' => variable_get('update_feed_api_stepping', 10)
   );
-  $apis = array( '8.x','7.x','6.x','5.x','4.1.x','4.2.x','4.3.x','4.4.x','4.5.x','4.6.x','4.7.x','4.0.x');
+  $apis = array( '8.x','7.x','6.x','5.x','4.7.x','4.6.x','4.5.x','4.4.x','4.3.x','4.2.x','4.1.x','4.0.x',);
   $form['feeds']['apis'] = array(
     '#type' => 'fieldset',
     '#title' => t('Apis'),

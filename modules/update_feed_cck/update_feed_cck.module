@@ -1,0 +1,47 @@
+<?php
+
+require_once 'update_feed_cck.field.inc';
+require_once 'update_feed_cck.widget.inc';
+/**
+ * Implementation of hook_field_info().
+ */
+function update_feed_cck_field_info() {
+  return array(
+    'update_feed_cck' => array(
+      'label' => t('Update feed'), 
+      'description' => t('A field for a module fetched by the update_feed_api'),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_field_settings().
+ */
+function update_feed_cck_field_settings($op, $field) {
+  $return = array();
+
+  module_load_include('inc', 'update_feed_cck', 'update_feed_cck.field');
+  $op = str_replace(' ', '_', $op);
+  $function = 'update_feed_cck_field_settings_'. $op;
+  if (function_exists($function)) {
+    $result = $function($field);
+    if (isset($result) && is_array($result)) {
+      $return = $result;
+    }
+  }
+
+  return $return;
+}
+
+/**
+ * Implementation of CCK's hook_field().
+ */
+function update_feed_cck_field($op, $node, $field, &$items, $teaser, $page) {
+  module_load_include('inc', 'update_feed_cck', 'update_feed_cck.field');
+  $op = str_replace(' ', '_', $op);
+  // add filefield specific handlers...
+  $function = 'update_feed_cck_field_'. $op;
+  if (function_exists($function)) {
+    return $function($node, $field, $items, $teaser, $page);
+  }
+}
