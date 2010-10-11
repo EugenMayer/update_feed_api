@@ -38,6 +38,7 @@ Well yeah, think about you get a autocompletiton on modules / version / api on t
 
 h1. Installation / Usage
 # Just activate the module and the deps.
+## If you use the update_feed_cck widget, install the patched autcomplete_element module from : http://github.com/EugenMayer/autocomplete_element
 # Then go to the the update feed api configuration admin/settings/update_feed_api_settings and configure your feeds. 
 ## Look for the example, that should work if you use it for testing.
 ## You can set the stepping, you can calculate 10 seconds for a ten step setup even. Pretty slow due to the XML parsing
