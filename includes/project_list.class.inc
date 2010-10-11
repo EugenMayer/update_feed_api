@@ -51,9 +51,7 @@ class Project_list {
     return array_key_exists($short_name, $this->projects);
   }
   
-  
-  
-  public function projects_to_array($key = 'short_name') {
+  public function to_array($key = 'short_name') {
     $result = array();
     foreach($this->projects as $p) {
       $result[$p->get_info('short_name')] = $p->get_info($key); 

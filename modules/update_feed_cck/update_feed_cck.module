@@ -5,9 +5,10 @@ require_once 'update_feed_cck.widget.inc';
 
 function update_feed_cck_menu() {
   $items = array();
-  $items['update_feed_cck/autocomplete'] = array(
+  $items['update_feed_cck/autocomplete/%'] = array(
     'title' => 'Update feed cck autocompletition',
 		'page callback' => '_update_feed_cck_autocomplete',
+    'page arguments' => array(2,3,4),
     'access arguments' => array('update feed cck autocompletition'), 
     'type' => MENU_CALLBACK
   );
@@ -18,19 +19,15 @@ function update_feed_cck_perm() {
   return array('update feed cck autocompletition');
 }
 
-function _update_feed_cck_autocomplete($field_name, $string = '') {
+function _update_feed_cck_autocomplete($server_key, $api_version, $string = '') {
   $fields = content_fields();
   $field = $fields[$field_name];
   $match = isset($field['widget']['autocomplete_match']) ? $field['widget']['autocomplete_match'] : 'contains';
   $matches = array();
-
-  $references = _nodereference_potential_references($field, $string, $match, array(), 10);
-  foreach ($references as $id => $row) {
-    // Add a class wrapper for a few required CSS overrides.
-    $matches[$row['title'] ." [nid:$id]"] = '<div class="reference-autocomplete">'. $row['rendered'] . '</div>';
-  }
-  drupal_json($matches);
-}
+  $pl = new Project_list(array('server_key' => $server_key, 'api_version' => $api_version), 20);
+  $pl->search($string);
+  $result = $pl->to_array();
+  drupal_json($result);
 }
   
 /**
