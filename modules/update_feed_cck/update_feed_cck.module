@@ -11,9 +11,10 @@ function update_feed_cck_menu() {
     'access arguments' => array('update feed cck autocompletition'), 
     'type' => MENU_CALLBACK
   );
-   $items['update_feed_cck/autocomplete/releases'] = array(
+   $items['update_feed_cck/autocomplete/releases/%'] = array(
     'title' => 'Update feed cck autocompletition',
     'page callback' => '_update_feed_cck_autocomplete_releases',
+    'page arguments' => array(3,4),
     'access arguments' => array('update feed cck autocompletition'), 
     'type' => MENU_CALLBACK
   );
@@ -36,17 +37,34 @@ function _update_feed_cck_autocomplete_modules() {
   exit();
 }
 
-function _update_feed_cck_autocomplete_releases() {
-  $server_key = $_GET['server_key'];
-  $api_version = $_GET['api'];
-  $short_name = $_GET['module'];
-
-  $matches = array();
-  
-  $p = update_feed_api_get_project($server_key, $short_name, $api_version, TRUE);
-  $result = $p->releases_to_array();
-  autocomplete_element_output($result);
+function _update_feed_cck_autocomplete_releases($field_name, $delta) {
+  dsm($_POST);
+  dsm($field_name);
+  dsm($delta);
+  $cck_field = $_POST[$field_name][$delta];
+  $server_key = $cck_field['server_key'];
+  $short_name = $cck_field['short_name'];
+  $api_version = $cck_field['api_version'];
+  if(!empty($server_key) && !empty($short_name) && !empty($api_version)) {
+    $p = update_feed_api_get_project($server_key, $short_name, $api_version, TRUE);
+  }
+    
+  $form_state = array('submitted' => FALSE);
+  $form_build_id = $_POST['form_build_id'];
+  $form = form_get_cache($form_build_id, $form_state);
+  $form += array(
+    '#post' => $_POST,
+    '#programmed' => FALSE,
+  );
+   // Rebuild the form.
+  $form = form_builder($_POST['form_id'], $form, $form_state);
+  // Render the new output.
+  $new_form = $form[$field_name][$delta]['release'];
+  dsm($new_form);
+  $output =  drupal_render($new_form);  
+  print drupal_to_js(array('data' => $output, 'status' => true));
   exit();
+
 }
   
 /**

@@ -14,17 +14,6 @@ function update_feed_cck_widget(&$form, &$form_state, $field, $items, $delta = 0
  * Expands the filefield_widget type to include the upload field, upload and
  * remove buttons, and the description field.
  */
-function update_feed_cck_widget_process($element, $edit, &$form_state, $form) {
-  dsm($element);
-  return $element;
-}
-
-/**
- * An element #process callback for the update_feed_cck field type.
- *
- * Expands the filefield_widget type to include the upload field, upload and
- * remove buttons, and the description field.
- */
 function update_feed_cck_update_feed_module_process($element, $edit, &$form_state, $form) {
   ctools_add_js('update_feed_cck','update_feed_cck');
   $defaults = $element['#value'];  
@@ -33,7 +22,6 @@ function update_feed_cck_update_feed_module_process($element, $edit, &$form_stat
   foreach($feeds as $feed) {
     $options[$feed['server_key']] = $feed['server_key'];
   }
-  dsm($element);
   $element['server_key'] = array(
     '#type' => 'select',
     '#title' => t('Server key'),
@@ -65,6 +53,40 @@ function update_feed_cck_update_feed_module_process($element, $edit, &$form_stat
     '#default_value' => $defaults['api_version'],
     '#size' => 1,
   );
+  $releases = array();
+  if(!empty($defaults['server_key']) && !empty($defaults['short_name']) && !empty($defaults['api_version'])) {
+    $p = Project_factory::load_project($defaults['server_key'], $defaults['short_name'], $defaults['api_version'], TRUE);
+    $releases = $p->releases_to_array();
+  }
+  
+  $element['release'] = array(
+    '#type' => 'select',
+    '#title' => t('Release'),
+    '#options' => drupal_map_assoc($releases),
+    '#default_value' => $defaults['release'],
+    '#prefix' => '<div id="'.$element['#id'].'-release-api-container">',
+    '#suffix' => '</div>',
+    '#size' => 2,
+  );
+  
+  $element['refresh'] = array(
+    '#type' => 'button',
+    '#title' => t('Refresh'),
+    '#value' => t('Refresh'),
+    '#ahah'   => array (
+      'event'    => 'click',
+      'method'   => 'replace',
+      'wrapper'  =>  $element['#id'].'-release-api-container',
+      'path'     => 'update_feed_cck/autocomplete/releases/'.$element['#field_name'].'/'.$element['#delta'],
+      'effect'   => 'none',
+      'progress' => array (
+        'type'    => 'throbber',
+        'message' => t('Refreshing'),
+      ),
+    ),
+  );
+  
+  /*
   $element['release'] = array(
     '#type' => 'autocomplete',
     '#title' => t('Release'),
@@ -82,6 +104,6 @@ function update_feed_cck_update_feed_module_process($element, $edit, &$form_stat
     ),
     '#default_value' => $defaults['release'],
     '#size' => '30',
-  );
+  );*/
   return $element;
 }
