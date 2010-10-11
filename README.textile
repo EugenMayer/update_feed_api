@@ -100,6 +100,10 @@ h3. update_feed.class.inc
 bq. A basic implementation of a update feed fetcher for drupalas "Project" module (like its used on drupal.org) and for the feature server. You can change the way sources are fetched or from where.
   Paths on the server are abstracted with tokens, so you can override and redefine you own protocols with only some few lines of code
   
+h3. project_list.class.inc
+
+bq. A helper class to maintain a list of projects. You can add / remove / check for existens or start a search for projects in the database and store the result in the list. Together with the "to_array" function you can have nice transformations on those lists, which are needed pretty often
+  
 h3. factories.class.inc
 
 bq. Just some factories to load Projects / Releases

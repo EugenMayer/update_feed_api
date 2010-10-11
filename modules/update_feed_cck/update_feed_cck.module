@@ -2,6 +2,37 @@
 
 require_once 'update_feed_cck.field.inc';
 require_once 'update_feed_cck.widget.inc';
+
+function update_feed_cck_menu() {
+  $items = array();
+  $items['update_feed_cck/autocomplete'] = array(
+    'title' => 'Update feed cck autocompletition',
+		'page callback' => '_update_feed_cck_autocomplete',
+    'access arguments' => array('update feed cck autocompletition'), 
+    'type' => MENU_CALLBACK
+  );
+  return $items;
+}
+
+function update_feed_cck_perm() {
+  return array('update feed cck autocompletition');
+}
+
+function _update_feed_cck_autocomplete($field_name, $string = '') {
+  $fields = content_fields();
+  $field = $fields[$field_name];
+  $match = isset($field['widget']['autocomplete_match']) ? $field['widget']['autocomplete_match'] : 'contains';
+  $matches = array();
+
+  $references = _nodereference_potential_references($field, $string, $match, array(), 10);
+  foreach ($references as $id => $row) {
+    // Add a class wrapper for a few required CSS overrides.
+    $matches[$row['title'] ." [nid:$id]"] = '<div class="reference-autocomplete">'. $row['rendered'] . '</div>';
+  }
+  drupal_json($matches);
+}
+}
+  
 /**
  * Implementation of hook_field_info().
  */
