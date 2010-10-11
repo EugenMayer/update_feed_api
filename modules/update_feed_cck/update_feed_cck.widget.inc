@@ -26,13 +26,14 @@ function update_feed_cck_widget_process($element, $edit, &$form_state, $form) {
  * remove buttons, and the description field.
  */
 function update_feed_cck_update_feed_module_process($element, $edit, &$form_state, $form) {
-  dsm('here');
+  ctools_add_js('update_feed_cck','update_feed_cck');
   $defaults = $element['#value'];  
   $options = array();
   $feeds = _update_feed_api_get_feeds();
   foreach($feeds as $feed) {
     $options[$feed['server_key']] = $feed['server_key'];
   }
+  dsm($element);
   $element['server_key'] = array(
     '#type' => 'select',
     '#title' => t('Server key'),
@@ -41,8 +42,16 @@ function update_feed_cck_update_feed_module_process($element, $edit, &$form_stat
     '#size' => '1',
   );
   $element['short_name'] = array(
-    '#type' => 'textfield',
+    '#type' => 'autocomplete',
     '#title' => t('Module'),
+    '#data' => 'update_feed_cck/autocomplete/modules',
+    '#plugin_options' => array(
+      'extraParams' => array(
+        'server_key' => array('update_feed_cck_field' => array('id' => 'select#'.$element['#id'].'-server-key') ),
+        'api' => array('update_feed_cck_field' => array('id' => 'select#'.$element['#id'].'-api-version') ),
+      ),
+    ),
+    '#function_names' => array( 'update_feed_cck_server_key' ),
     '#default_value' => $defaults['short_name'],
     '#size' => '30',
   );
@@ -53,14 +62,20 @@ function update_feed_cck_update_feed_module_process($element, $edit, &$form_stat
     '#options' => drupal_map_assoc($apis),
     '#default_value' => $defaults['api_version'],
     '#size' => 1,
-    '#autocomplete_path' => 'update_feed_cck/autocomplete/api_version',
-  );  
+  );
   $element['release'] = array(
-    '#type' => 'textfield',
+    '#type' => 'autocomplete',
     '#title' => t('Release'),
+    '#data' => 'update_feed_cck/autocomplete/releases',
+    '#plugin_options' => array(
+      'extraParams' => array(
+        'server_key' => array('update_feed_cck_field' => array('id' => 'select#'.$element['#id'].'-server-key') ),
+        'api' => array('update_feed_cck_field' => array('id' => 'select#'.$element['#id'].'-api-version') ),
+        'module' => array('update_feed_cck_field' => array('id' => 'input#'.$element['#id'].'-short-name') ),
+      ),
+    ),
     '#default_value' => $defaults['release'],
     '#size' => '30',
   );
   return $element;
 }
-

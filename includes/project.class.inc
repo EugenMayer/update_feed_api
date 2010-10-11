@@ -45,6 +45,20 @@ class Project extends FeedEntryContainer {
       $release->save();
     }
   }
+  
+  public function releases_to_array($key = 'version') {
+    $result = array();
+    foreach($this->releases as $r) {
+      $result[$r->get_info('version')] = $r->get_info($key); 
+    }
+    
+    return $result;
+  }
+  
+  public function full_fetched() {
+    return $this->infos['full_fetched'] == 1 ? TRUE : FALSE;
+  }
+  
   protected function validate_terms($terms)  {
     // TODO: is this required?
     $req = array ();

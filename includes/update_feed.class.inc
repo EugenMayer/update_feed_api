@@ -176,7 +176,7 @@ class Update_feed implements IUpdate_feed{
       // replace tokens
       $url =  str_replace('%p', $project_shortinfo['short_name'], $url);
       $url =  str_replace('%api', $api, $url);
-      
+      dsm($url);
       $result = drupal_http_request($url);
       if($result == FALSE) {
         // could mean there is nothing there yet, no need to freak out
@@ -221,7 +221,7 @@ class Update_feed implements IUpdate_feed{
       }
       if($fetch_releases) {
         $this->fetch_releases($doc, $project_obj);
-        $this->set_info('full_fetched', 1);
+        $project_obj->set_info('full_fetched', 1);
       }
       
       if($save) {

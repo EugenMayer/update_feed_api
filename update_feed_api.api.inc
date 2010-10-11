@@ -30,7 +30,7 @@ function update_feed_api_get_projects($server_key, $api_version, $load_releases 
 function update_feed_api_get_project($server_key, $short_name, $api_version, $load_releases = TRUE) {
   $project = Project_factory::load_project($server_key,$short_name, $api_version);
   if(!$project->full_fetched() && $load_releases) {
-    $project = update_feed_api_fetch_releases($project);
+    $project = update_feed_api_fetch_releases($project, $api_version);
   }
   return $project;
 }
@@ -51,7 +51,8 @@ function update_feed_api_api_get_project_by_pid($pid, $load_releases = TRUE) {
  */
 function update_feed_api_get_project_apis($server_key, $short_name) {
   $query = db_select('update_feed_api_projects','ufap');
-  $query->conditions( array('ufap.server_key' => $server_key, 'ufap.short_name' => $short_name));
+  $query->condition( 'ufap.server_key' , $server_key);
+  $query->condition( 'ufap.short_name' , $short_name);
   $query->fields('ufap',array('api_version'));
   $result = $query->execute();
   if ($result == NULL) {
@@ -69,9 +70,9 @@ function update_feed_api_get_project_apis($server_key, $short_name) {
  * Running this for a project, the update-feed for this project is read
  * and all releases are extracted
  */
-function update_feed_api_fetch_releases($project) {
-  $feed = _update_feed_api_get_feeds($project->server_key());
-  $fetcher = new $feed['class']($feed['server_key'], $feed['host'], 10, NULL, _update_feed_api_allowed_apis());
+function update_feed_api_fetch_releases($project, $api_version) {
+  $feeds = _update_feed_api_get_feeds(array($project->server_key()));
+  $fetcher = new $feeds[0]['class']($feeds[0]['host'], $feeds[0]['server_key'], 10, NULL, _update_feed_api_allowed_apis());
   $projects = $fetcher->fetch_project($project, array($api_version));
   return $projects[$api_version];
 }

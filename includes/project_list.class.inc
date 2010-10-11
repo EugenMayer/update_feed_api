@@ -17,15 +17,15 @@ class Project_list {
   public function search($keyword, $server_key = NULL, $api_version = NULL) {
     // making server_key / api_version an argument is just a helper for later
     // integration of project lists, which support overlays
-    if($api_version == NULL && array_key_exists('api_versoin', $this->defaults)) {
-      $api_version = $default['api_version'];
+    if($api_version == NULL && array_key_exists('api_version', $this->defaults)) {
+      $api_version = $this->defaults['api_version'];
     } 
     else {
       throw new Exception('please pass the api_version or pass it as default');
     }
 
-    if($api_version == NULL && array_key_exists('server_key', $this->defaults)) {
-      $api_version = $default['server_key'];
+    if($server_key == NULL && array_key_exists('server_key', $this->defaults)) {
+      $server_key = $this->defaults['server_key'];
     } 
     else {
       throw new Exception('please pass the server_key or pass it as default');

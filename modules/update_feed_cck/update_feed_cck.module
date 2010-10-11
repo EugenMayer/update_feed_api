@@ -5,10 +5,15 @@ require_once 'update_feed_cck.widget.inc';
 
 function update_feed_cck_menu() {
   $items = array();
-  $items['update_feed_cck/autocomplete/%'] = array(
+  $items['update_feed_cck/autocomplete/modules'] = array(
     'title' => 'Update feed cck autocompletition',
-		'page callback' => '_update_feed_cck_autocomplete',
-    'page arguments' => array(2,3,4),
+		'page callback' => '_update_feed_cck_autocomplete_modules',
+    'access arguments' => array('update feed cck autocompletition'), 
+    'type' => MENU_CALLBACK
+  );
+   $items['update_feed_cck/autocomplete/releases'] = array(
+    'title' => 'Update feed cck autocompletition',
+    'page callback' => '_update_feed_cck_autocomplete_releases',
     'access arguments' => array('update feed cck autocompletition'), 
     'type' => MENU_CALLBACK
   );
@@ -19,15 +24,31 @@ function update_feed_cck_perm() {
   return array('update feed cck autocompletition');
 }
 
-function _update_feed_cck_autocomplete($server_key, $api_version, $string = '') {
-  $fields = content_fields();
-  $field = $fields[$field_name];
-  $match = isset($field['widget']['autocomplete_match']) ? $field['widget']['autocomplete_match'] : 'contains';
-  $matches = array();
+function _update_feed_cck_autocomplete_modules() {
+  $server_key = $_GET['server_key'];
+  $api_version = $_GET['api'];
+  $keyword = $_GET['search'];
+  
   $pl = new Project_list(array('server_key' => $server_key, 'api_version' => $api_version), 20);
-  $pl->search($string);
+  $pl->search($keyword);
   $result = $pl->to_array();
-  drupal_json($result);
+  autocomplete_element_output($result);
+  exit();
+}
+
+function _update_feed_cck_autocomplete_releases() {
+  $server_key = $_GET['server_key'];
+  $api_version = $_GET['api'];
+  $short_name = $_GET['module'];
+
+  $matches = array();
+  
+  $p = update_feed_api_get_project($server_key, $short_name, $api_version, TRUE);
+  return '';
+  $result = $p->releases_to_array();
+  autocomplete_element_output($result);
+  
+  exit();
 }
   
 /**
