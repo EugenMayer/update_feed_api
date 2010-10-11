@@ -46,6 +46,8 @@ function update_feed_cck_update_feed_module_process($element, $edit, &$form_stat
     '#title' => t('Module'),
     '#data' => 'update_feed_cck/autocomplete/modules',
     '#plugin_options' => array(
+      'cacheLength' => 1,
+      'mustMatch' => 1,
       'extraParams' => array(
         'server_key' => array('update_feed_cck_field' => array('id' => 'select#'.$element['#id'].'-server-key') ),
         'api' => array('update_feed_cck_field' => array('id' => 'select#'.$element['#id'].'-api-version') ),
@@ -68,6 +70,10 @@ function update_feed_cck_update_feed_module_process($element, $edit, &$form_stat
     '#title' => t('Release'),
     '#data' => 'update_feed_cck/autocomplete/releases',
     '#plugin_options' => array(
+      'cacheLength' => 1,
+      'matchContains' => 0,
+      'matchSubset' => FALSE,
+      'max' => 0,
       'extraParams' => array(
         'server_key' => array('update_feed_cck_field' => array('id' => 'select#'.$element['#id'].'-server-key') ),
         'api' => array('update_feed_cck_field' => array('id' => 'select#'.$element['#id'].'-api-version') ),

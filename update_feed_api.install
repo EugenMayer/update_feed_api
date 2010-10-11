@@ -84,7 +84,7 @@ function _update_feed_api_get_schema() {
       ),
     ),
     'primary key' => array('pid'),
-    //'unique keys' => array('server_relation' =>  array( 'short_name', 'server_key') ),
+    //'unique keys' => array('server_relation' =>  array( 'short_name', 'server_key', 'api_version') ),
   );
   $schema['update_feed_api_releases'] = array(
     'description' => 'Stores releases',
@@ -166,7 +166,7 @@ function _update_feed_api_get_schema() {
       ),
     ),
     'primary key' => array('rid'),
-    //'unique keys' => array('project_relation' => array('name', 'project_short_name', 'server_key') ),
+    //'unique keys' => array('project_relation' => array('rid', 'pid') ),
   );
   return $schema;
 }

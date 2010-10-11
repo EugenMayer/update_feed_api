@@ -17,6 +17,7 @@ class Project extends FeedEntryContainer {
     $this->server_key = $server_key;
     // if we should load release and we have a primary key already
     // (project loaded from the DB) load all releases
+    
     if(($load_release) && $this->primary_key_exists($this->infos)) {
       $this->load_releases();
     };
@@ -56,8 +57,20 @@ class Project extends FeedEntryContainer {
   }
   
   public function full_fetched() {
-    dsm($this->infos['full_fetched']);
     return $this->infos['full_fetched'] == 1 ? TRUE : FALSE;
+  }
+  
+  public function remove() {
+    // if we dont have a prim key yet, its not even in a DB.
+    // so we dont need to delete the project
+    if($this->primary_key_exists($this->infos)) {
+      db_delete('update_feed_api_projects')
+      ->condition('pid',$this->infos[$this->prim_key_field])
+      ->execute();
+      db_delete('update_feed_api_releases')
+      ->condition('pid',$this->infos[$this->prim_key_field])
+      ->execute();
+    }
   }
   
   protected function validate_terms($terms)  {
@@ -83,6 +96,10 @@ class Project extends FeedEntryContainer {
   }
 
   protected function load_releases() {
+    if(!$this->full_fetched()) {
+      $project = update_feed_api_fetch_releases($this, $this->infos['api_version']);
+    }
+  
     $prim_key = $this->primary_key_exists($this->infos);
     if($prim_key == FALSE) {
       // no need to load release, as we did not get saved in the DB yet

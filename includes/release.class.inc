@@ -15,7 +15,7 @@ class Release extends FeedEntryContainer{
   }
   
   protected function validate_terms($terms)  {
-    $req = array ( 'Release type' ); 
+    $req = array (); 
     $diff = array_diff($req, array_keys($terms));
     if (count($diff) >0 ) {
       throw new Exception('Not all required terms set from release. Missing: ('.join(',',$diff).')');

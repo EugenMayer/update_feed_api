@@ -5,7 +5,6 @@
  */
 function update_feed_api_search_projects($server_key, $api_version, $search) {
   $projects = Project_factory::load_projects($server_key, $api_version, FALSE, $search);
-  
   return $projects;
 }
 
@@ -14,13 +13,6 @@ function update_feed_api_search_projects($server_key, $api_version, $search) {
  */
 function update_feed_api_get_projects($server_key, $api_version, $load_releases = TRUE) {
   $projects = Project_factory::load_projects($server_key, $api_version, $load_releases);
-  if($load_releases) {
-    foreach($projects as &$project) {
-      if(!$project->full_fetched()){
-        $project = update_feed_api_fetch_releases($project);
-      }
-    }
-  }
   return $projects;
 }
 
@@ -28,14 +20,7 @@ function update_feed_api_get_projects($server_key, $api_version, $load_releases 
  *  Load a specific projects of a specific api of a specific server
  */
 function update_feed_api_get_project($server_key, $short_name, $api_version, $load_releases = TRUE) {
-  $project = Project_factory::load_project($server_key,$short_name, $api_version);
-  
-  if(!$project->full_fetched() && $load_releases) {
-    
-  dsm($project->full_fetched());
-    $project = update_feed_api_fetch_releases($project, $api_version);
-  }
-  
+  $project = Project_factory::load_project($server_key,$short_name, $api_version,$load_releases);
   return $project;
 }
 
@@ -44,10 +29,6 @@ function update_feed_api_get_project($server_key, $short_name, $api_version, $lo
  */
 function update_feed_api_api_get_project_by_pid($pid, $load_releases = TRUE) {
   $project = Project_factory::load_by_pid($pid, $load_releases);
-  if(!$project->full_fetched() && $load_releases) {
-    $project = update_feed_api_fetch_releases($project);
-  }
-  dsm($project);
   return $project;
 }
 

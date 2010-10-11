@@ -72,6 +72,11 @@ class Update_feed implements IUpdate_feed{
     if($this->cur_pos < $this->projects_count) {
       // define the border, exclusivly
       $to = $this->cur_pos + $this->stepping;
+      
+      if($to > $this->projects_count) {
+        $to = $this->projects_count;
+      }
+     
       // finally fetch the projects shortinfos
       $projects_shortinfo = $this->fetch_projects($this->cur_pos,  $to);
       // no get all detailed informations, project by project and save them in the DB
@@ -107,13 +112,16 @@ class Update_feed implements IUpdate_feed{
   
   public function fetch_project($project, $api_versions = NULL) {
     if($api_versions == NULL)  {
-      $api_versions = array( $project->get_info('api_version'));
+      $api_versions = array( $project->get_info('api_version') );
     }
     $project_info = array(
       'short_name' => $project->get_info('short_name'),
       'apis' => $api_versions,
     );
-
+    
+    // remove the old project from the DB, as we will fetch all details now newly and create 
+    // a new recordd for each api related to the releases;
+    $project->remove();
     $this->fetch_project_details($project_info, TRUE, TRUE);
   }
   
@@ -125,7 +133,7 @@ class Update_feed implements IUpdate_feed{
     $doc->loadXML($xml);
     $xpath = new DOMXPath($doc);
     // we dont include the right border, as we will start with that element the next time
-    $projects = $xpath->query("//project[position() >= $from and position() < $to]", $doc);
+    $projects = $xpath->query("//project[position() >= $from and position() <= $to]", $doc);
     $result = array();
     foreach($projects as $p) {
       $project_shortinfo = array();
