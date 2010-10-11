@@ -176,7 +176,7 @@ class Update_feed implements IUpdate_feed{
       // replace tokens
       $url =  str_replace('%p', $project_shortinfo['short_name'], $url);
       $url =  str_replace('%api', $api, $url);
-      dsm($url);
+      
       $result = drupal_http_request($url);
       if($result == FALSE) {
         // could mean there is nothing there yet, no need to freak out

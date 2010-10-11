@@ -62,7 +62,6 @@ function _update_feed_api_get_feeds($feeds_to_fetch = FALSE) {
 
 function _update_feed_api_allowed_apis()  {
   $settings = variable_get('update_feed_api_allowed_apis', array('7.x','6.x','5.x'));
-  dsm($settings);
   $settings = array_values($settings);
   $settings = array_filter($settings,'_update_feed_api_checkbox_filter');
   return $settings;

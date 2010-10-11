@@ -29,9 +29,13 @@ function update_feed_api_get_projects($server_key, $api_version, $load_releases 
  */
 function update_feed_api_get_project($server_key, $short_name, $api_version, $load_releases = TRUE) {
   $project = Project_factory::load_project($server_key,$short_name, $api_version);
+  
   if(!$project->full_fetched() && $load_releases) {
+    
+  dsm($project->full_fetched());
     $project = update_feed_api_fetch_releases($project, $api_version);
   }
+  
   return $project;
 }
 
@@ -43,6 +47,7 @@ function update_feed_api_api_get_project_by_pid($pid, $load_releases = TRUE) {
   if(!$project->full_fetched() && $load_releases) {
     $project = update_feed_api_fetch_releases($project);
   }
+  dsm($project);
   return $project;
 }
 

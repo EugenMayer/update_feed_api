@@ -46,8 +46,8 @@ function _update_feed_cck_autocomplete_releases() {
   $p = update_feed_api_get_project($server_key, $short_name, $api_version, TRUE);
   return '';
   $result = $p->releases_to_array();
-  autocomplete_element_output($result);
   
+  autocomplete_element_output($result);
   exit();
 }
   

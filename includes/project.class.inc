@@ -56,6 +56,7 @@ class Project extends FeedEntryContainer {
   }
   
   public function full_fetched() {
+    dsm($this->infos['full_fetched']);
     return $this->infos['full_fetched'] == 1 ? TRUE : FALSE;
   }
   
