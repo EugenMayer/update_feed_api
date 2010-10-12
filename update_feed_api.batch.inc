@@ -1,4 +1,8 @@
 <?php
+// $Id$
+
+// Copyright (c) 2010 KontextWork
+// Author: Eugen Mayer
 
 function _update_feed_api_start_refresh_batch($feeds, $fetch_releases = TRUE) {
   // Update the user profiles to add values to newly added profile fields

@@ -1,6 +1,7 @@
 <?php
 // $Id$
 
+// Author: Daniel Wehner
 /**
  * Implements hook_views_data().
  */

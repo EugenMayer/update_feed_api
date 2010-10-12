@@ -1,4 +1,4 @@
-; $Id: project_api.info,v 1.1.2.2 2010/10/06 11:29:22 rareface Exp $
+; $Id$
 name = "Update feed api"
 core = "6.x"
 description = "Provides API functions for downloading, storing and manipulating large project repositories such as cvs.drupal.org."

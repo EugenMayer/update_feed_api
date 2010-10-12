@@ -229,7 +229,8 @@ class Update_feed implements IUpdate_feed{
       }
       if($fetch_releases) {
         $this->fetch_releases($doc, $project_obj);
-        $project_obj->set_info('full_fetched', 1);
+        // update full_fetched, set it to the current date
+        $project_obj->set_info('full_fetched', time());
       }
       
       if($save) {

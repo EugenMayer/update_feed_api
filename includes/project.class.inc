@@ -59,7 +59,7 @@ class Project extends FeedEntryContainer {
   }
   
   public function full_fetched() {
-    return $this->infos['full_fetched'] == 1 ? TRUE : FALSE;
+    return $this->infos['full_fetched'] != '' ? TRUE : FALSE;
   }
   
   public function remove() {

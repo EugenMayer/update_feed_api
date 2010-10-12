@@ -1,5 +1,8 @@
 <?php
 // $Id$
+
+// Copyright (c) 2010 KontextWork
+// Author: Eugen Mayer
 function update_feed_cck_widget(&$form, &$form_state, $field, $items, $delta = 0) {
   $element= array(
     '#type' => 'update_feed_module',

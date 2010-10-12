@@ -1,4 +1,8 @@
 <?php
+// $Id$
+
+// Copyright (c) 2010 KontextWork
+// Author: Eugen Mayer
 
 /*
  * Search and get projects of a specific api of a specifc server matching the short_name / title
