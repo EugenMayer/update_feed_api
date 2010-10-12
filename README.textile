@@ -4,6 +4,8 @@ Think about you can fetch the projects and all the meta informations like releas
 The special thing about this is can do this from different places (and update feed implementation), drupal.org with project, your own feature server under "yourdomain.org" and what ever you like.
 All you need is a update-feed integration like the one from Project or Fserver, or your write your own fetch handler fetching those informations out of .. hmm, git, some DB, a FILE?
 
+Looking for a concrete example?: "drush_make_ui":http://github.com/EugenMayer/drush_make_ui
+
 Later on, you can seperate projects by the place they have been fetched.
 As i described before, you can handle several sources. That means there is no issue having views on your own feature server and on drupal.org. Both projects are saved and can be selected by there source.
 
@@ -18,6 +20,10 @@ h1. Features
 * OOP implementation. Add your own feed-fetchers, formats or whatever you like.
 
 h1. Usecase
+
+h3. drush make ui
+
+A concrete implementation / use of the update_feed_api is "drush_make_ui":http://github.com/EugenMayer/drush_make_ui . Build your make file with autocompletition!
 
 h3. drupalmodules.com
 
