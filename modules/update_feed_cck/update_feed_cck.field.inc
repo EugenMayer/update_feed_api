@@ -47,7 +47,7 @@ function update_feed_cck_field_settings($op, $field) {
  * 
  */
 function update_feed_cck_content_is_empty($item, $field) {
-  if (empty($item['server_key'])) {
+  if (empty($item['short_name']) ||  empty($item['release'])) {
     return TRUE;
   }
   return FALSE;
@@ -70,45 +70,6 @@ function update_feed_cck_elements() {
 
 function theme_update_feed_module($element) {
   return theme('form_element', $element, $element['#children']);
-}
-
-
-/**
- * Implementation of CCK's hook_field_formatter_info().
- */
-function update_feed_cck_field_formatter_info() {
-  return array(
-    'default' => array(
-      'label' => t('Table(all fields)'),
-      'field types' => array('update_field_cck'),
-      'multiple values' => CONTENT_HANDLE_CORE,
-      'description' => t('Displays modules in a table with the shortname, server, api and version'),
-    ),
-    'api_versions' => array(
-      'label' => t('API Versions'),
-      'field types' => array('update_field_cck'),
-      'multiple values' => CONTENT_HANDLE_CORE,
-      'description' => t('Displays the api-versions of the module attached'),
-    ),
-    'server_key' => array(
-      'label' => t('Server key'),
-      'field types' => array('update_field_cck'),
-      'multiple values' => CONTENT_HANDLE_CORE,
-      'description' => t('Displays the server_key of the  module attached'),
-    ),
-    'short_name' => array(
-      'label' => t('Short Name(Module name)'),
-      'field types' => array('update_field_cck'),
-      'multiple values' => CONTENT_HANDLE_CORE,
-      'description' => t('Displays the short_name of the module attached'),
-    ),
-    'version' => array(
-      'label' => t('Version'),
-      'field types' => array('update_field_cck'),
-      'multiple values' => CONTENT_HANDLE_CORE,
-      'description' => t('Displays the version of the module attached'),
-    ),
-  );
 }
 
 

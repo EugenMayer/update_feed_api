@@ -35,24 +35,29 @@ function update_feed_cck_theme() {
     'update_feed_module' => array (
         'arguments' => array('element' => NULL),
     ),
+    'update_feed_cck_value' => array(
+      'arguments' => array('value' => NULL, 'name' => NULL, 'field' => NULL),
+      'file' => 'update_feed_cck.formatter.inc',
+    ),
     'update_feed_cck_formatter_default' => array(
       'arguments' => array('element' => NULL),
+      'function' => 'update_feed_cck_table',
       'file' => 'update_feed_cck.formatter.inc',
     ),
     'update_feed_cck_formatter_server_key' => array(
-      'arguments' => array('element' => NULL),
+      'arguments' => array('element' => NULL, 'server_key'),
       'file' => 'update_feed_cck.formatter.inc',
     ),
     'update_feed_cck_formatter_short_name' => array(
-      'arguments' => array('element' => NULL),
+     'arguments' => array('element' => NULL, '_short_name'),
       'file' => 'update_feed_cck.formatter.inc',
     ),
-    'update_feed_cck_formatter_version' => array(
-      'arguments' => array('file' => NULL, 'field' => NULL),
+    'update_feed_cck_formatter_release' => array(
+      'arguments' => array('element' => NULL, 'release'),
       'file' => 'update_feed_cck.formatter.inc',
     ),
     'update_feed_cck_formatter_api_version' => array(
-      'arguments' => array('file' => NULL),
+      'arguments' => array('element' => NULL),
       'file' => 'update_feed_cck.formatter.inc',
     ),
   );

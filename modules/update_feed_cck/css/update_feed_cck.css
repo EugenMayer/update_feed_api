@@ -1,0 +1,9 @@
+.update_feed_field_container {
+  float:left;
+}
+
+.update_feed_field_refresh {
+  position:relative;
+  top:20px;
+  float:left;
+}
