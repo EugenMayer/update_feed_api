@@ -62,7 +62,6 @@ function _update_feed_cck_autocomplete_releases($field_name, $delta) {
   $form = form_builder($_POST['form_id'], $form, $form_state);
   // Render the new output.
   $new_form = $form[$field_name][$delta]['release'];
-  dsm($new_form);
   $output =  drupal_render($new_form);  
   print drupal_to_js(array('data' => $output, 'status' => true));
   exit();
@@ -145,7 +144,7 @@ function update_feed_cck_theme() {
 /**
  * Implementation of CCK's hook_field_formatter_info().
  */
-function update_feed_cck_formatter_info() {
+function update_feed_cck_field_formatter_info() {
   return array(
     'default' => array(
       'label' => t('Table(all fields)'),
@@ -179,7 +178,6 @@ function update_feed_cck_formatter_info() {
     ),
   );
 }
-
 
 function update_feed_cck_elements() {
   return array(
