@@ -113,6 +113,10 @@ function update_feed_api_autoload_info() {
       'file' => 'update_feed.class.inc',
       'file path' => $path,
     ),
+    'Fserver_update_feed' => array(
+      'file' => 'update_feed.class.inc',
+      'file path' => $path,
+    ),
     'Project_list' => array(
       'file' => 'project_list.class.inc',
       'file path' => $path,

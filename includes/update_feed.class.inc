@@ -310,9 +310,9 @@ class Update_feed implements IUpdate_feed{
   }
 }
 
-class Fserver_update_feed {
-  public function __construct($host, $server_key, $stepping = 5, $projects_count = NULL) {
-    parent::__construct($host, $server_key, $stepping = 5, $projects_count = NULL);
+class Fserver_update_feed extends Update_feed{
+  public function __construct($host, $server_key, $stepping = 5, $projects_count = NULL, $allowed_api_version = array('7.x', '6.x', '5.x')) {
+    parent::__construct($host, $server_key, $stepping, $projects_count, $allowed_api_version);
   }
   protected function project_list_url() {
     return '/fserver/project-list/all';
