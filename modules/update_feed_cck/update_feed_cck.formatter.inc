@@ -33,7 +33,7 @@ function update_feed_cck_field_formatter_info() {
       'multiple values' => CONTENT_HANDLE_CORE,
       'description' => t('Displays the short_name of the module attached'),
     ),
-    'release' => array(
+    'module_release' => array(
       'label' => t('Release'),
       'field types' => array('update_feed_cck'),
       'multiple values' => CONTENT_HANDLE_CORE,
@@ -60,7 +60,7 @@ function update_feed_cck_table($element) {
     if(array_key_exists($i, $element)) {
       $rows[] = array(
         'short_name' => check_plain($element[$i]['#item']['short_name']),
-        'version' => check_plain($element[$i]['#item']['release']),
+        'version' => check_plain($element[$i]['#item']['module_release']),
         'api_version' => check_plain($element[$i]['#item']['api_version']),
         'server_key' => check_plain($element[$i]['#item']['server_key']),
       );
@@ -101,13 +101,13 @@ function theme_update_feed_cck_formatter_api_version($element) {
   return theme('update_feed_cck_value',$element['#item']['api_version'], 'api_version',  content_fields($element['#field_name']));
 }
 
-function theme_update_feed_cck_formatter_release($element) {
+function theme_update_feed_cck_formatter_module_release($element) {
   // Inside a View this function may be called with null data. In that case,
   // just return.
   if (empty($element['#item'])) { 
     return '';
   }
-  return theme('update_feed_cck_value',$element['#item']['release'], 'release',  content_fields($element['#field_name']));
+  return theme('update_feed_cck_value',$element['#item']['release'], 'module_release',  content_fields($element['#field_name']));
 }
 
 function theme_update_feed_cck_formatter_short_name($element) {

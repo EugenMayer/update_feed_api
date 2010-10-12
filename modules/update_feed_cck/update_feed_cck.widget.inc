@@ -95,11 +95,11 @@ function update_feed_cck_update_feed_module_process($element, $edit, &$form_stat
     $releases = $p->releases_to_array();
   }
   
-  $element['release'] = array(
+  $element['module_release'] = array(
     '#type' => 'select',
     '#title' => t('Release'),
     '#options' => drupal_map_assoc($releases),
-    '#default_value' => $defaults['release'],
+    '#default_value' => $defaults['module_release'],
     '#size' => 2,
     '#attributes' => array (
       'class' => 'update_feed_cck_field'
@@ -115,7 +115,7 @@ function update_feed_cck_update_feed_module_process($element, $edit, &$form_stat
     '#ahah'   => array (
       'event'    => 'click',
       'method'   => 'replace',
-      'wrapper'  =>  $element['#id'].'-release-wrapper',
+      'wrapper'  =>  $element['#id'].'-module-release-wrapper',
       'path'     => 'update_feed_cck/autocomplete/releases/'.$element['#field_name'].'/'.$element['#delta'],
       'effect'   => 'none',
       'progress' => array (

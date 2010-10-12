@@ -38,7 +38,7 @@ function update_feed_cck_field_settings($op, $field) {
         'server_key' => array('type' => 'varchar', 'length' => '40',  'default' => '', 'not null' => TRUE, 'views' => TRUE),
         'short_name' => array('type' => 'varchar', 'length' => '50',  'default' => '', 'not null' => TRUE, 'views' => TRUE),
         'api_version' => array('type' => 'varchar', 'length' => '10',  'default' => '', 'not null' => TRUE, 'views' => TRUE),
-        'release' => array('type' => 'varchar', 'length' => '50', 'default' => '', 'not null' => TRUE, 'views' => TRUE),
+        'module_release' => array('type' => 'varchar', 'length' => '50', 'default' => '', 'not null' => TRUE, 'views' => TRUE),
     );
   }
 }
@@ -47,7 +47,7 @@ function update_feed_cck_field_settings($op, $field) {
  * 
  */
 function update_feed_cck_content_is_empty($item, $field) {
-  if (empty($item['short_name']) ||  empty($item['release'])) {
+  if (empty($item['short_name']) ||  empty($item['module_release'])) {
     return TRUE;
   }
   return FALSE;
