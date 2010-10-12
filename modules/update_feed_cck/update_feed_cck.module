@@ -30,6 +30,34 @@ function update_feed_cck_perm() {
   return array('update feed cck autocompletition');
 }
 
+function update_feed_cck_theme() {
+  return array(
+    'update_feed_module' => array (
+        'arguments' => array('element' => NULL),
+    ),
+    'update_feed_cck_formatter_default' => array(
+      'arguments' => array('element' => NULL),
+      'file' => 'update_feed_cck.formatter.inc',
+    ),
+    'update_feed_cck_formatter_server_key' => array(
+      'arguments' => array('element' => NULL),
+      'file' => 'update_feed_cck.formatter.inc',
+    ),
+    'update_feed_cck_formatter_short_name' => array(
+      'arguments' => array('element' => NULL),
+      'file' => 'update_feed_cck.formatter.inc',
+    ),
+    'update_feed_cck_formatter_version' => array(
+      'arguments' => array('file' => NULL, 'field' => NULL),
+      'file' => 'update_feed_cck.formatter.inc',
+    ),
+    'update_feed_cck_formatter_api_version' => array(
+      'arguments' => array('file' => NULL),
+      'file' => 'update_feed_cck.formatter.inc',
+    ),
+  );
+}
+
 function _update_feed_cck_autocomplete_modules() {
   $server_key = $_GET['server_key'];
   $api_version = $_GET['api'];
@@ -67,129 +95,3 @@ function _update_feed_cck_autocomplete_releases($field_name, $delta) {
   exit();
 }
   
-/**
- * Implementation of hook_field_info().
- */
-function update_feed_cck_field_info() {
-  return array(
-    'update_feed_cck' => array(
-      'label' => t('Update feed'), 
-      'description' => t('A field for a module fetched by the update_feed_api'),
-    ),
-  );
-}
-
-/**
- * Implementation of hook_widget_info().
- */
-function update_feed_cck_widget_info() {
-  return array(
-    'update_feed_cck_widget' => array(
-      'field types' => array('update_feed_cck'),
-      'label' => t('Update feed select dialog'),
-      'multiple values' => CONTENT_HANDLE_CORE,
-      'callbacks' => array(
-          'default value' => CONTENT_CALLBACK_DEFAULT,
-      ),
-    ),
-  );
-}
-
-/**
- * Implementation of CCK's hook_field().
- */
-function update_feed_cck_field($op, $node, $field, &$items, $teaser, $page) {
-  module_load_include('inc', 'update_feed_cck', 'update_feed_cck.field');
-  $op = str_replace(' ', '_', $op);
-  // add filefield specific handlers...
-  $function = 'update_feed_cck_field_'. $op;
-  if (function_exists($function)) {
-    return $function($node, $field, $items, $teaser, $page);
-  }
-}
-
-/**
- *  Thats our own FAPI element for our CCK widget
- */
-
-function update_feed_cck_theme() {
-  return array(
-    'update_feed_module' => array (
-        'arguments' => array('element' => NULL),
-    ),
-    'update_feed_cck_formatter_default' => array(
-      'arguments' => array('element' => NULL),
-      'file' => 'update_feed_cck.formatter.inc',
-    ),
-    'update_feed_cck_formatter_server_key' => array(
-      'arguments' => array('element' => NULL),
-      'file' => 'update_feed_cck.formatter.inc',
-    ),
-    'update_feed_cck_formatter_short_name' => array(
-      'arguments' => array('element' => NULL),
-      'file' => 'update_feed_cck.formatter.inc',
-    ),
-    'update_feed_cck_formatter_version' => array(
-      'arguments' => array('file' => NULL, 'field' => NULL),
-      'file' => 'update_feed_cck.formatter.inc',
-    ),
-    'update_feed_cck_formatter_api_version' => array(
-      'arguments' => array('file' => NULL),
-      'file' => 'update_feed_cck.formatter.inc',
-    ),
-  );
-}
-
-
-/**
- * Implementation of CCK's hook_field_formatter_info().
- */
-function update_feed_cck_field_formatter_info() {
-  return array(
-    'default' => array(
-      'label' => t('Table(all fields)'),
-      'field types' => array('update_field_cck'),
-      'multiple values' => CONTENT_HANDLE_CORE,
-      'description' => t('Displays modules in a table with the shortname, server, api and version'),
-    ),
-    'api_versions' => array(
-      'label' => t('API Versions'),
-      'field types' => array('update_field_cck'),
-      'multiple values' => CONTENT_HANDLE_CORE,
-      'description' => t('Displays the api-versions of the module attached'),
-    ),
-    'server_key' => array(
-      'label' => t('Server key'),
-      'field types' => array('update_field_cck'),
-      'multiple values' => CONTENT_HANDLE_CORE,
-      'description' => t('Displays the server_key of the  module attached'),
-    ),
-    'short_name' => array(
-      'label' => t('Short Name(Module name)'),
-      'field types' => array('update_field_cck'),
-      'multiple values' => CONTENT_HANDLE_CORE,
-      'description' => t('Displays the short_name of the module attached'),
-    ),
-    'version' => array(
-      'label' => t('Version'),
-      'field types' => array('update_field_cck'),
-      'multiple values' => CONTENT_HANDLE_CORE,
-      'description' => t('Displays the version of the module attached'),
-    ),
-  );
-}
-
-function update_feed_cck_elements() {
-  return array(
-  'update_feed_module' => array(
-    '#input' => TRUE,
-    '#delta' => 0,
-    '#process' => array('update_feed_cck_update_feed_module_process'),
-    '#autocomplete_path' => FALSE,
-    ),
-  );
-}
-
-function theme_update_feed_module($element) {
-  return theme('form_element', $element, $element['#children']);
-}

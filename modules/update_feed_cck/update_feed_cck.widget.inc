@@ -3,6 +3,23 @@
 
 // Copyright (c) 2010 KontextWork
 // Author: Eugen Mayer
+
+/**
+ * Implementation of hook_widget_info().
+ */
+function update_feed_cck_widget_info() {
+  return array(
+    'update_feed_cck_widget' => array(
+      'field types' => array('update_feed_cck'),
+      'label' => t('Update feed select dialog'),
+      'multiple values' => CONTENT_HANDLE_CORE,
+      'callbacks' => array(
+          'default value' => CONTENT_CALLBACK_DEFAULT,
+      ),
+    ),
+  );
+}
+
 function update_feed_cck_widget(&$form, &$form_state, $field, $items, $delta = 0) {
   $element= array(
     '#type' => 'update_feed_module',
