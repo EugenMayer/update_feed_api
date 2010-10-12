@@ -25,6 +25,7 @@ class Project extends FeedEntryContainer {
   
   public function add_release($infos, $terms) {
     $this->releases[$infos['date']] = new Release($infos, $terms, $this);
+    $this->sort_releases();
   }
   
   public function get_release($date = NULL) {
@@ -48,6 +49,7 @@ class Project extends FeedEntryContainer {
   }
   
   public function releases_to_array($key = 'version') {
+    $this->sort_releases();
     $result = array();
     foreach($this->releases as $r) {
       $result[$r->get_info('version')] = $r->get_info($key); 
@@ -71,6 +73,20 @@ class Project extends FeedEntryContainer {
       ->condition('pid',$this->infos[$this->prim_key_field])
       ->execute();
     }
+  }
+  
+  protected function sort_releases() {
+    usort($this->releases, array($this, 'compare_releases'));
+  }
+  
+  protected function compare_releases($a, $b) {
+    $a_val = $a->get_info('date');
+    $b_val = $b->get_info('date');
+    if($a_val == $b_val) {
+      return 0;
+    }
+    
+    return $a_val < $b_val ? 1 : -1;
   }
   
   protected function validate_terms($terms)  {
@@ -114,5 +130,6 @@ class Project extends FeedEntryContainer {
       $release = Release_factory::load_by_rid($record->rid, $this);
       $this->releases[$release->get_info('date')] = $release;
     }
+    $this->sort_releases();
   }
 }

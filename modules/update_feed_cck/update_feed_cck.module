@@ -38,9 +38,6 @@ function _update_feed_cck_autocomplete_modules() {
 }
 
 function _update_feed_cck_autocomplete_releases($field_name, $delta) {
-  dsm($_POST);
-  dsm($field_name);
-  dsm($delta);
   $cck_field = $_POST[$field_name][$delta];
   $server_key = $cck_field['server_key'];
   $short_name = $cck_field['short_name'];

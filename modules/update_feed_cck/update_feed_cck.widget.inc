@@ -16,6 +16,7 @@ function update_feed_cck_widget(&$form, &$form_state, $field, $items, $delta = 0
  */
 function update_feed_cck_update_feed_module_process($element, $edit, &$form_state, $form) {
   ctools_add_js('update_feed_cck','update_feed_cck');
+  ctools_add_css('update_feed_cck','update_feed_cck');
   $defaults = $element['#value'];  
   $options = array();
   $feeds = _update_feed_api_get_feeds();
@@ -24,13 +25,21 @@ function update_feed_cck_update_feed_module_process($element, $edit, &$form_stat
   }
   $element['server_key'] = array(
     '#type' => 'select',
-    '#title' => t('Server key'),
+    '#title' => t('Server'),
     '#options' => $options,
     '#default_value' => $defaults['server_key'],
     '#size' => '1',
+    '#attributes' => array (
+      'class' => 'update_feed_cck_field'
+    ),
+    '#prefix' => '<div class="update_feed_field_container">',
+    '#suffix' => '</div>',
   );
   $element['short_name'] = array(
     '#type' => 'autocomplete',
+    '#attributes' => array (
+      'class' => 'update_feed_cck_field'
+    ),
     '#title' => t('Module'),
     '#data' => 'update_feed_cck/autocomplete/modules',
     '#plugin_options' => array(
@@ -41,6 +50,8 @@ function update_feed_cck_update_feed_module_process($element, $edit, &$form_stat
         'api' => array('update_feed_cck_field' => array('id' => 'select#'.$element['#id'].'-api-version') ),
       ),
     ),
+    '#prefix' => '<div class="update_feed_field_container">',
+    '#suffix' => '</div>',
     '#function_names' => array( 'update_feed_cck_server_key' ),
     '#default_value' => $defaults['short_name'],
     '#size' => '30',
@@ -52,6 +63,11 @@ function update_feed_cck_update_feed_module_process($element, $edit, &$form_stat
     '#options' => drupal_map_assoc($apis),
     '#default_value' => $defaults['api_version'],
     '#size' => 1,
+    '#prefix' => '<div class="update_feed_field_container">',
+    '#suffix' => '</div>',
+    '#attributes' => array (
+      'class' => 'update_feed_cck_field'
+    ),
   );
   $releases = array();
   if(!empty($defaults['server_key']) && !empty($defaults['short_name']) && !empty($defaults['api_version'])) {
@@ -64,9 +80,12 @@ function update_feed_cck_update_feed_module_process($element, $edit, &$form_stat
     '#title' => t('Release'),
     '#options' => drupal_map_assoc($releases),
     '#default_value' => $defaults['release'],
-    '#prefix' => '<div id="'.$element['#id'].'-release-api-container">',
-    '#suffix' => '</div>',
     '#size' => 2,
+    '#attributes' => array (
+      'class' => 'update_feed_cck_field'
+    ),
+    '#prefix' => '<div class="update_feed_field_container">',
+    '#suffix' => '</div>',
   );
   
   $element['refresh'] = array(
@@ -76,7 +95,7 @@ function update_feed_cck_update_feed_module_process($element, $edit, &$form_stat
     '#ahah'   => array (
       'event'    => 'click',
       'method'   => 'replace',
-      'wrapper'  =>  $element['#id'].'-release-api-container',
+      'wrapper'  =>  $element['#id'].'-release-wrapper',
       'path'     => 'update_feed_cck/autocomplete/releases/'.$element['#field_name'].'/'.$element['#delta'],
       'effect'   => 'none',
       'progress' => array (
@@ -84,26 +103,9 @@ function update_feed_cck_update_feed_module_process($element, $edit, &$form_stat
         'message' => t('Refreshing'),
       ),
     ),
+    '#prefix' => '<div class="update_feed_field_refresh clear-block">',
+    '#suffix' => '</div>',
+   
   );
-  
-  /*
-  $element['release'] = array(
-    '#type' => 'autocomplete',
-    '#title' => t('Release'),
-    '#data' => 'update_feed_cck/autocomplete/releases',
-    '#plugin_options' => array(
-      'cacheLength' => 1,
-      'matchContains' => 0,
-      'matchSubset' => FALSE,
-      'max' => 0,
-      'extraParams' => array(
-        'server_key' => array('update_feed_cck_field' => array('id' => 'select#'.$element['#id'].'-server-key') ),
-        'api' => array('update_feed_cck_field' => array('id' => 'select#'.$element['#id'].'-api-version') ),
-        'module' => array('update_feed_cck_field' => array('id' => 'input#'.$element['#id'].'-short-name') ),
-      ),
-    ),
-    '#default_value' => $defaults['release'],
-    '#size' => '30',
-  );*/
   return $element;
 }
