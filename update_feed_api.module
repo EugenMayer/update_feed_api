@@ -1,0 +1,151 @@
+<?php
+// $Id$
+
+// Copyright (c) 2010 KontextWork
+// Author: Eugen Mayer
+
+require_once 'update_feed_api.api.inc';
+/**
+ * Implementation of hook_autoload_info().
+ */
+function update_feed_api_menu() {
+  return array(
+    'admin/build/refresh_update_feeds' => array(
+       'title' => 'Refresh update feeds',
+       'page callback' => 'drupal_get_form',
+       'page arguments' => array('update_feed_api_refresh_form'),
+       'access arguments' => array('administer site configuration'),
+       'file' => 'update_feed_api.admin.inc'
+    ),
+    'admin/settings/update_feed_api_settings' => array (
+      'type' => MENU_NORMAL_ITEM,
+      'title' => 'Update Feed API configuration',
+      'description' => 'Configure update feed api',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('update_feed_api_admin_settings'),
+      'access arguments' => array('administer site configuration'),
+      'file' => 'update_feed_api.admin.inc'
+     )
+  );
+}
+
+function _update_feed_api_get_feeds($feeds_to_fetch = FALSE) {
+  $settings = variable_get('update_feed_api_feeds', '');
+  $feeds = array();
+  if ($settings != '') {
+    $feeds_lines = array();
+    $feeds_lines = preg_split("/((\r(?!\n))|((?<!\r)\n)|(\r\n))/", $settings);
+    foreach ($feeds_lines as $feed) {
+      $feed = explode('|',$feed);
+      $feed = array(
+        'host' => $feed[0],
+        'server_key' => $feed[1],
+        'class' => $feed[2],
+      );
+    
+      // dont take any feeds into the result, which are not expected
+      if (is_array($feeds_to_fetch) && array_search($feed['server_key'], $feeds_to_fetch) === FALSE) {
+        continue;
+      }
+      
+      // validate
+      if(!class_exists($feed['class']) || array_search('IUpdate_feed', class_implements($feed['class'])) === FALSE) {
+        drupal_set_message('Cant fetch feed '.$feed['server_key']." as the class ({$feed['class']}) is missing, not loadable or does not implement the IUpdate_feed interface");
+        continue;
+      }
+      //else
+      $feeds[] = $feed;
+    }
+  }
+  return $feeds;
+}
+
+function _update_feed_api_allowed_apis()  {
+  $settings = variable_get('update_feed_api_allowed_apis', array('7.x','6.x','5.x'));
+  $settings = array_values($settings);
+  $settings = array_filter($settings,'_update_feed_api_checkbox_filter');
+  return $settings;
+}
+
+function _update_feed_api_clear_tables($server_key = NULL) {
+  $query_ufap = db_delete('update_feed_api_projects');
+  $query_ufar = db_delete('update_feed_api_releases');
+  if($server_key == NULL) {
+    $query_ufap->execute();
+    $query_ufar->execute();
+  }
+  else {
+    $query_ufap->condition('server_key',$server_key);
+    $query_ufar->condition('server_key',$server_key);
+    $query_ufap->execute();
+    $query_ufar->execute();
+  }
+}
+
+function update_feed_api_autoload_info() {
+  $path = drupal_get_path('module','update_feed_api').'/includes/';
+  return array(
+    'FeedEntryContainer' => array(
+      'file' => 'feedentrycontainer.class.inc',
+      'file path' => $path,
+    ),
+    'Project' => array(
+      'file' => 'project.class.inc',
+      'file path' => $path,
+    ),
+    'Release' => array(
+      'file' => 'release.class.inc',
+      'file path' => $path,
+    ),
+    'Project_factory' => array(
+      'file' => 'factories.class.inc',
+      'file path' => $path,
+    ),
+    'Release_factory' => array(
+      'file' => 'factories.class.inc',
+      'file path' => $path,
+    ),
+    'SmartDOMDocument' => array(
+      'file' => 'smartdomdocument.class.inc',
+      'file path' => $path,
+    ),
+    'Update_feed' => array(
+      'file' => 'update_feed.class.inc',
+      'file path' => $path,
+    ),
+    'Fserver_update_feed' => array(
+      'file' => 'update_feed.class.inc',
+      'file path' => $path,
+    ),
+    'Project_list' => array(
+      'file' => 'project_list.class.inc',
+      'file path' => $path,
+    ),    
+  );
+}
+
+function _update_feed_api_checkbox_filter($i) {
+  if($i === 0) {
+    return FALSE;
+  }
+  
+  return TRUE;
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function update_feed_api_views_api() {
+  return array(
+    'api' => 2.0,
+  );
+}
+
+/**
+ * Returns some drupal core version.s
+ *
+ * Options callback for views filter.
+ */
+function _udpate_feed_api_core_versions() {
+  return drupal_map_assoc(array('4.1.x', '4.2.x', '5.x', '6.x', '7.x', '8.x'));
+}
