@@ -103,7 +103,8 @@ function update_feed_api_views_data() {
       'handler' => 'views_handler_argument_string',
     ),
     'filter' => array(
-      'handler' => 'views_handler_filter_string',
+      'handler' => 'views_handler_filter_in_operator',
+      'options callback' => '_udpate_feed_api_core_versions',
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
