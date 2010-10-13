@@ -36,6 +36,17 @@ class Project extends FeedEntryContainer {
     return $this->releases;
   }
   
+  public function get_release_by_version($version) {
+    foreach($this->releases as $release) {
+      if($release->get_info('version') == $version) {
+        return $release;
+      }
+      //else just continue
+    }
+    
+    throw new Exception('No release found with the version '.$version);
+  }
+  
   public function server_key() {
     return $this->server_key;
   }
@@ -75,6 +86,44 @@ class Project extends FeedEntryContainer {
     }
   }
   
+  public function type() {
+    try {
+      // Its part of the project meta data, so check there.
+      $type = $this->get_term('Projects');
+    }
+    catch(Exception $e) {
+      // as this term is not set, we cant determine the type at all
+      return 'UNKNOWN';
+    }
+    if(!is_array($type)) {
+      $type = array($type);
+    }
+    foreach($type as $t) {
+      switch($t) {
+        case 'Modules':
+          return 'module';
+        break;
+        case 'Themes':
+          return 'theme';
+        break;
+        case 'Installation profiles':
+          return 'profile';
+        break;
+        case 'Theme engines':
+          return 'theme_engine'; 
+        break;
+        case 'Translations':
+          return 'translation';
+        break;
+        case 'Drupal project':
+          return 'core';
+        break;
+        
+      }
+    }
+    return 'UNKNOWN';
+  }
+  
   protected function sort_releases() {
     usort($this->releases, array($this, 'compare_releases'));
   }
@@ -102,7 +151,7 @@ class Project extends FeedEntryContainer {
     $req = array ( 'title', 'short_name', 'api_version', 'link');
     $diff = array_diff($req, array_keys($infos));
     if (count($diff) >0 ) {
-      throw new Exception('Not all required infos set from project. Missing: ('.join(',',$diff).')');
+      throw new Exception('Not all required infos set for project. Missing: ('.join(',',$diff).')');
     }
   }
   

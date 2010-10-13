@@ -16,8 +16,8 @@ function update_feed_api_admin_settings() {
   $form['feeds']['update_feed_api_feeds'] = array(
     '#type' => 'textarea',
     '#title' => t('Update-feeds'),
-    '#description' => t('Define which updat-feeds to fetch from where. Format: host|machine_name|class. Example: <em>"http://updates.drupal.org|drupal_org|Update_feed"</em>. For each feed use on separate line.'),
-    '#default_value' => variable_get('update_feed_api_feeds', '')
+    '#description' => t('Define which updat-feeds to fetch from where. Format: host|machine_name|class. Example: <em>"http://updates.drupal.org/release-history|drupal_org|Update_feed"</em>. For each feed use on separate line.'),
+    '#default_value' => variable_get('update_feed_api_feeds', 'http://updates.drupal.org/release-history|drupal_org|Update_feed')
   );
   
   $form['feeds']['update_feed_api_stepping'] = array(
@@ -98,7 +98,7 @@ function update_feed_api_refresh_form_validate($form, &$form_state) {
 
 function update_feed_api_refresh_form_submit($form, &$form_state) {
   require_once 'update_feed_api.batch.inc';
-  $fetch_releases = $form_state['values']['fetch_release'];
+  $fetch_releases = $form_state['values']['fetch_releases'];
   $feeds = $form_state['values']['feeds'];
   $feeds = array_filter($feeds,'_update_feed_api_checkbox_filter');
   $feeds = array_keys($feeds);
