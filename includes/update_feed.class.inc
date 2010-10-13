@@ -146,8 +146,17 @@ class Update_feed implements IUpdate_feed{
       foreach($ts as $term) {
         $name = $xpath->query("./name", $term)->item(0)->nodeValue;
         $value = $xpath->query("./value", $term)->item(0)->nodeValue;
-        
-        $terms[$name] = $value;
+        if(array_key_exists($name,$terms)) {
+          if(is_string($terms[$name])) {
+            $terms[$name] = array($terms[$name], $value);
+          }
+          else {
+            $terms[$name][] = $value;
+          }
+        }
+        else {
+          $terms[$name] = $value;
+        }
       }
       $project_shortinfo['terms'] = $terms;
       $apis = $xpath->query("./api_versions/api_version", $p);
@@ -216,7 +225,17 @@ class Update_feed implements IUpdate_feed{
         $name = $xpath->query("./name", $term)->item(0)->nodeValue;
         $value = $xpath->query("./value", $term)->item(0)->nodeValue;
         
-        $terms[$name] = $value;
+        if(array_key_exists($name,$terms)) {
+          if(is_string($terms[$name])) {
+            $terms[$name] = array($terms[$name], $value);
+          }
+          else {
+            $terms[$name][] = $value;
+          }
+        }
+        else {
+          $terms[$name] = $value;
+        }
       }
       try {
         $project_obj = new Project($infos, $terms, $this->server_key);
@@ -234,7 +253,12 @@ class Update_feed implements IUpdate_feed{
       }
       
       if($save) {
-        $project_obj->save();
+        try {
+          $project_obj->save();
+        }
+        catch(Exception $e) {
+          drupal_set_message('Could not save ('.$project_obj->get_info('short_name').') due to errors (dublicate?) in the DB. '.$e, 'error');
+        }
       }
       
       $projects_by_api[$api] = $project_obj;
@@ -282,11 +306,11 @@ class Update_feed implements IUpdate_feed{
   }
   
   protected function project_list_url() {
-    return '/release-history/project-list/all';
+    return '/project-list/all';
   }
   
   protected function project_data_url() {
-    return '/release-history/%p/%api';
+    return '/%p/%api';
   }
   
   public function overall_project_count() {
@@ -307,18 +331,5 @@ class Update_feed implements IUpdate_feed{
   
   public function __destruct() {
     unset($this->project_list_store);
-  }
-}
-
-class Fserver_update_feed extends Update_feed{
-  public function __construct($host, $server_key, $stepping = 5, $projects_count = NULL, $allowed_api_version = array('7.x', '6.x', '5.x')) {
-    parent::__construct($host, $server_key, $stepping, $projects_count, $allowed_api_version);
-  }
-  protected function project_list_url() {
-    return '/fserver/project-list/all';
-  }
-  
-  protected function project_data_url() {
-    return '/fserver/%p/%api';
   }
 }

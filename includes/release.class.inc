@@ -14,6 +14,17 @@ class Release extends FeedEntryContainer{
     $this->prim_key_field = 'rid';
   }
   
+  public function type() {
+    return $this->parent_project->type();
+  }
+  
+  public function server_key() {
+    return $this->parent_project->server_key();
+  }
+  
+  public function module_name() {
+    return $this->parent_project->get_info('short_name');
+  }
   protected function validate_terms($terms)  {
     $req = array (); 
     $diff = array_diff($req, array_keys($terms));
@@ -43,4 +54,6 @@ class Release extends FeedEntryContainer{
     // else
     return FALSE;
   }
+  
+  
 }
