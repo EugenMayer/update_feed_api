@@ -10,7 +10,7 @@ class Update_feed_xmlreader extends Update_feed {
   // with the sax parser we dont support ranged queries, so we have to fetch it all in one step
   public function fetch_next_projects($fetch_releases = TRUE, $save = TRUE) {
     // as we dont support fetching and not saving, we force this
-    $projects_shortinfo = $this->fetch_and_save_all_projects($fetch_releases, TRUE);
+    $this->fetch_and_save_all_projects($fetch_releases, TRUE);
     return TRUE;
   }  
   
@@ -47,14 +47,19 @@ class Update_feed_xmlreader extends Update_feed {
         foreach($apis as $api) {
           $infos['api_version'] = $api;
           $p = new Project($infos, $terms, $this->server_key);
-          $p->save();
+          try {
+            $p->save();
+          }
+          catch(Exception $e) {
+            drupal_set_message('Could not save '.$p->get_info('short_name').' into database', 'error');
+          }
         }
         continue;
       }
     }
     
     if(count($errors) > 0) {
-      drupal_set_message('Errors('.count($errors).') parsing this projects(missing fields):'.join(', ',$errors),'warning');
+      drupal_set_message('Errors('.count($errors).') parsing this projects(missing fields): '.join(', ',$errors),'warning');
     }
   }
   
@@ -127,7 +132,7 @@ class Update_feed_xmlreader extends Update_feed {
       }
       if ($reader->nodeType == XMLReader::ELEMENT && $reader->name == 'api_version') {        
         $reader->read();
-        $apis[] = $reader->value;
+        $apis[$reader->value] = $reader->value;
       }
     }
     return $apis;

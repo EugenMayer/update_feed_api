@@ -70,7 +70,12 @@ class Update_feed implements IUpdate_feed{
           foreach($apis as $api) {
             $infos['api_version'] = $api;
             $project = new Project($infos, $terms, $this->server_key);
-            $project->save();
+            try {
+              $project->save();
+            }
+            catch(Exception $e) {
+              drupal_set_message('Could not save '.$project->get_info('short_name').' into database','error');
+            }            
           }
         }
       }
@@ -162,7 +167,7 @@ class Update_feed implements IUpdate_feed{
       $project_shortinfo['terms'] = $terms;
       $apis = $xpath->query("./api_versions/api_version", $p);
       foreach($apis as $api) {
-        $project_shortinfo['api_versions'][] = $api->nodeValue;
+        $project_shortinfo['api_versions'][$api->nodeValue] = $api->nodeValue;
       }
       
       // if there are not apis, dont add that project

@@ -28,18 +28,9 @@ function _update_feed_api_start_refresh_batch($feeds, $fetch_releases = TRUE) {
   }
   
   batch_set($batch);
-  
-  // DEBUG
-  /*
-  foreach($feeds as $feed) {
-    $reader = new $feed['class']($feed['host'], $feed['server_key'], 500, NULL, _update_feed_api_allowed_apis());
-    $reader->fetch_project_list();
-    $reader->fetch_next_projects(FALSE, TRUE);
-    //$reader->fetch_next_projects(FALSE, FALSE);
-  }*/
 }
 
-function _update_feed_api_process_feeds($feeds, $fetch_releases, &$context) { 
+function _update_feed_api_process_feeds($feeds, $fetch_releases, &$context) {
   if (!isset($context['sandbox']['progress'])) {
     $context['sandbox']['feeds'] = $feeds;
     $context['sandbox']['progress'] = 0;
