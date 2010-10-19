@@ -120,7 +120,12 @@ function update_feed_api_autoload_info() {
     'Project_list' => array(
       'file' => 'project_list.class.inc',
       'file path' => $path,
-    ),    
+    ),
+    'Update_feed_xmlreader' => array(
+      'file' => 'update_feed_xmlreader.class.inc',
+      'file path' => $path,
+    ), 
+       
   );
 }
 
@@ -142,10 +147,33 @@ function update_feed_api_views_api() {
 }
 
 /**
- * Returns some drupal core version.s
+ * Returns some drupal core versions
  *
  * Options callback for views filter.
  */
 function _udpate_feed_api_core_versions() {
   return drupal_map_assoc(array('4.1.x', '4.2.x', '5.x', '6.x', '7.x', '8.x'));
+}
+
+function update_feed_api_cron() {
+  // should we run automatic updates at all?
+  if(variable_get('udpate_feed_api_cron', FALSE) === FALSE) {
+    return;
+  }
+  
+  $run_every_x_hours = variable_get('udpate_feed_api_cron_schedule', 24);
+  $last_run = variable_get('udpate_feed_api_cron_last', 0);
+  // check if its time to run the updates
+  if (time() - $last_run >= 60*60*$run_every_x_hours) {
+     _update_feed_api_cron_run();
+     variable_set('udpate_feed_api_cron_last', time()); 
+  }
+}
+
+function _update_feed_api_cron_run() {
+  $feeds = _update_feed_api_get_feeds();
+  foreach($feeds as $feed) {
+    _update_feed_api_clear_tables($feed['server_key']);
+    update_feed_api_update_feed($feed, variable_get('udpate_feed_api_cron_fetch_releases', FALSE));
+  }
 }

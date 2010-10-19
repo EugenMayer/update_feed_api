@@ -16,8 +16,8 @@ function update_feed_api_admin_settings() {
   $form['feeds']['update_feed_api_feeds'] = array(
     '#type' => 'textarea',
     '#title' => t('Update-feeds'),
-    '#description' => t('Define which updat-feeds to fetch from where. Format: host|machine_name|class. Example: <em>"http://updates.drupal.org/release-history|drupal_org|Update_feed"</em>. For each feed use on separate line.'),
-    '#default_value' => variable_get('update_feed_api_feeds', 'http://updates.drupal.org/release-history|drupal_org|Update_feed')
+    '#description' => t('Define which updat-feeds to fetch from where. Format: host|machine_name|class. Example: <em>"http://updates.drupal.org/release-history|drupal_org|Update_feed_xmlreader"</em>. For each feed use on separate line.'),
+    '#default_value' => variable_get('update_feed_api_feeds', 'http://updates.drupal.org/release-history|drupal_org|Update_feed_xmlreader')
   );
   
   $form['feeds']['update_feed_api_stepping'] = array(
@@ -42,6 +42,33 @@ function update_feed_api_admin_settings() {
     '#description' => t('Only the selected apis are fetched from the API servers'),
     '#default_value' => variable_get( 'update_feed_api_allowed_apis', array('7.x','6.x','5.x') ),
   );
+   $form['feeds']['cron'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Cron runs'),
+    '#description' => t('Select the allowed API version'),
+    '#collapsed' => TRUE,
+    '#collapsible' => TRUE,
+    '#weight' => -2,
+  );
+  
+  $form['feeds']['cron']['udpate_feed_api_cron'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Auto-update'),
+    '#description' => t('Automaticly update feeds'),
+    '#default_value' => variable_get( 'udpate_feed_api_cron', FALSE),
+  );
+  $form['feeds']['cron']['udpate_feed_api_cron_fetch_releases'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Fetch release on automatic cron runs'),
+    '#description' => t('During automatic update runs runs, should the project releases be fetched?'),
+    '#default_value' => variable_get( 'udpate_feed_api_cron_fetch_releases', FALSE),
+  );
+  $form['feeds']['cron']['udpate_feed_api_cron_schedule'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Hours'),
+    '#description' => t('Set on which interval the updates should be performed. (Every X hours)'),
+    '#default_value' => variable_get( 'udpate_feed_api_cron_schedule', 24),
+  ); 
   
   return system_settings_form($form);
 }

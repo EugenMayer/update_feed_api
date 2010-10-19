@@ -66,3 +66,14 @@ function update_feed_api_fetch_releases($project, $api_version) {
   $projects = $fetcher->fetch_project($project, array($api_version));
   return $projects[$api_version];
 }
+
+function update_feed_api_update_feed($feed, $fetch_releases = FALSE) {
+  $class = $feed['class'];
+  $server_key = $feed['server_key'];
+  $host = $feed['host'];
+  $feedObj = new $class($host, $server_key, variable_get('update_feed_api_stepping', 10), NULL, _update_feed_api_allowed_apis());
+  $feedObj->fetch_project_list();
+  while($status !== TRUE) {
+    $status = $feedObj->fetch_next_projects($fetch_releases, TRUE);
+  }
+}

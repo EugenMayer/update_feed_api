@@ -19,7 +19,8 @@ function _update_feed_api_start_refresh_batch($feeds, $fetch_releases = TRUE) {
   if(count($feeds) == 0) {
     drupal_set_message('No feeds configured yet? Go to the '.l('update Feed configuration','admin/settings/update_feed_api_settings'),'warning');
     return '';
-  }  
+  }
+ 
   $batch['operations'][] = array('_update_feed_api_process_feeds', array($feeds, $fetch_releases));
   // clear the tables before we start
   foreach($feeds as $feed) {
@@ -27,6 +28,15 @@ function _update_feed_api_start_refresh_batch($feeds, $fetch_releases = TRUE) {
   }
   
   batch_set($batch);
+  
+  // DEBUG
+  /*
+  foreach($feeds as $feed) {
+    $reader = new $feed['class']($feed['host'], $feed['server_key'], 500, NULL, _update_feed_api_allowed_apis());
+    $reader->fetch_project_list();
+    $reader->fetch_next_projects(FALSE, TRUE);
+    //$reader->fetch_next_projects(FALSE, FALSE);
+  }*/
 }
 
 function _update_feed_api_process_feeds($feeds, $fetch_releases, &$context) { 
@@ -35,7 +45,7 @@ function _update_feed_api_process_feeds($feeds, $fetch_releases, &$context) {
     $context['sandbox']['progress'] = 0;
     $context['sandbox']['stepping'] = variable_get('update_feed_api_stepping', 10);
     $context['sandbox']['cur_feed_nr'] = -1;
-    $context['sandbox']['allowed_api_version'] = _update_feed_api_allowed_apis();
+    $context['sandbox']['allowed_api_versions'] = _update_feed_api_allowed_apis();
     $context['sandbox']['processing_feed'] = FALSE;
     $context['sandbox']['fetch_releases'] = $fetch_releases;
   }
@@ -55,7 +65,7 @@ function _update_feed_api_process_feeds($feeds, $fetch_releases, &$context) {
     $server_key = $context['sandbox']['feeds'][  $context['sandbox']['cur_feed_nr'] ]['server_key'];
     // create the feed reader object used by all the next batch runs until its finished
     
-    $context['sandbox']['cur_feed'] = new $class($host, $server_key, $context['sandbox']['stepping'], NULL, $context['sandbox']['allowed_api_version']);
+    $context['sandbox']['cur_feed'] = new $class($host, $server_key, $context['sandbox']['stepping'], NULL, $context['sandbox']['allowed_api_versions']);
     // fetch the complete project list and save it in a temporary file
     try {
       $context['sandbox']['cur_feed']->fetch_project_list();

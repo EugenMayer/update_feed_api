@@ -5,7 +5,7 @@
 // Author: Eugen Mayer
 
 interface IUpdate_feed {
-  public function __construct($host, $server_key, $stepping = 5, $projects_count = NULL, $allowed_api_version = array('7.x', '6.x', '5.x'));
+  public function __construct($host, $server_key, $stepping = 5, $projects_count = NULL, $allowed_api_versions = array('7.x', '6.x', '5.x'));
   // should fetch the whole project list. That what fetch_next_projects operates on
   // This should also initialize the count of the projects overall
   public function fetch_project_list();
@@ -34,13 +34,54 @@ class Update_feed implements IUpdate_feed{
   protected $projects_count = NULL;
   protected $allowed_api_versions = array();
   
-  public function __construct($host, $server_key, $stepping = 5, $projects_count = NULL, $allowed_api_version = array('7.x', '6.x', '5.x')) {
+  public function __construct($host, $server_key, $stepping = 5, $projects_count = NULL, $allowed_api_versions = array('7.x', '6.x', '5.x')) {
     $this->host = $host;
     $this->server_key = $server_key;
     $this->cur_pos = 0;
     $this->stepping = $stepping;
     $this->projects_count = $projects_count;
-    $this->allowed_api_versions = $allowed_api_version;
+    $this->allowed_api_versions = $allowed_api_versions;
+  }
+  
+  public function fetch_next_projects($fetch_releases = TRUE, $save = TRUE) {
+    if($this->cur_pos < $this->projects_count) {
+      // define the border, exclusivly
+      $to = $this->cur_pos + $this->stepping;
+      
+      if($to > $this->projects_count) {
+        $to = $this->projects_count;
+      }
+     
+      // finally fetch the projects shortinfos
+      $projects_shortinfo = $this->fetch_projects($this->cur_pos,  $to);
+      // no get all detailed informations, project by project and save them in the DB
+      foreach($projects_shortinfo as $p) {
+        // we dont fetch releases yet, just for debuuging
+        // the result is an array of projects for this project, as they are seperated by the API key
+        if($fetch_releases) {
+          $projects = $this->fetch_project_details($p, $fetch_releases, $save);
+        } 
+        else {
+          // lazy fetching
+          $apis = $p['api_versions'];
+          $terms = $p['terms'];
+          unset($p['api_versions'], $p['terms']);
+          $infos = $p;
+          foreach($apis as $api) {
+            $infos['api_version'] = $api;
+            $project = new Project($infos, $terms, $this->server_key);
+            $project->save();
+          }
+        }
+      }
+      // we are done, set the new posion and return how many steps we will need to finish all projects
+      $this->cur_pos = $to;
+      $status = ceil( ($this->projects_count - $this->cur_pos) / $this->stepping ) + 1;
+      return $status;
+    }
+
+    // if last step
+    return TRUE;
   }
   
   public function fetch_project_list() {
@@ -68,47 +109,7 @@ class Update_feed implements IUpdate_feed{
     }
   }
   
-  public function fetch_next_projects($fetch_releases = TRUE, $save = TRUE) {
-    if($this->cur_pos < $this->projects_count) {
-      // define the border, exclusivly
-      $to = $this->cur_pos + $this->stepping;
-      
-      if($to > $this->projects_count) {
-        $to = $this->projects_count;
-      }
-     
-      // finally fetch the projects shortinfos
-      $projects_shortinfo = $this->fetch_projects($this->cur_pos,  $to);
-      // no get all detailed informations, project by project and save them in the DB
-      foreach($projects_shortinfo as $p) {
-        // we dont fetch releases yet, just for debuuging
-        // the result is an array of projects for this project, as they are seperated by the API key
-        if($fetch_releases) {
-          $projects = $this->fetch_project_details($p, $fetch_releases, $save);
-        } 
-        else {
-          // lazy fetching
-          $apis = $p['apis'];
-          $terms = $p['terms'];
-          unset($p['apis'], $p['terms']);
-          $infos = $p;
-          foreach($apis as $api) {
-            $infos['api_version'] = $api;
-            $project = new Project($infos, $terms, $this->server_key);
-            $project->save();
-          }
-        }
-        
-      }
-      // we are done, set the new posion and return how many steps we will need to finish all projects
-      $this->cur_pos = $to;
-      $status = ceil( ($this->projects_count - $this->cur_pos) / $this->stepping ) + 1;
-      return $status;
-    }
-
-    // if last step
-    return TRUE;
-  }
+  
   
   public function fetch_project($project, $api_versions = NULL) {
     if($api_versions == NULL)  {
@@ -116,7 +117,7 @@ class Update_feed implements IUpdate_feed{
     }
     $project_info = array(
       'short_name' => $project->get_info('short_name'),
-      'apis' => $api_versions,
+      'api_versions' => $api_versions,
     );
     
     // remove the old project from the DB, as we will fetch all details now newly and create 
@@ -161,18 +162,18 @@ class Update_feed implements IUpdate_feed{
       $project_shortinfo['terms'] = $terms;
       $apis = $xpath->query("./api_versions/api_version", $p);
       foreach($apis as $api) {
-        $project_shortinfo['apis'][] = $api->nodeValue;
+        $project_shortinfo['api_versions'][] = $api->nodeValue;
       }
       
       // if there are not apis, dont add that project
-      if(!is_array($project_shortinfo['apis'])) {
+      if(!is_array($project_shortinfo['api_versions'])) {
         continue;
       }
       // filter all not allowed APIs
-      $project_shortinfo['apis'] = array_intersect($this->allowed_api_versions, $project_shortinfo['apis']);
+      $project_shortinfo['api_versions'] = array_intersect($this->allowed_api_versions, $project_shortinfo['api_versions']);
       
       // if no apis left, dont add the project
-      if(count($project_shortinfo['apis']) == 0) {
+      if(count($project_shortinfo['api_versions']) == 0) {
         continue;
       }
       // on one sever, the short_name is unique
@@ -181,14 +182,14 @@ class Update_feed implements IUpdate_feed{
     return $result;
   }
   
-  // be ware, returns an array. Each item is one of the project with a specfici API key
+  // be aware, returns an array. Each item is one of the project with a specfici API key
   protected function fetch_project_details($project_shortinfo, $fetch_releases = TRUE, $save = FALSE) {
     $projects_by_api = array();
-    if(!array_key_exists('apis',$project_shortinfo)) {
+    if(!array_key_exists('api_versions',$project_shortinfo)) {
       // TODO: what to do here?When a project does not have an API, we cant fetch anything 
       return array();
     }
-    foreach($project_shortinfo['apis'] as $api) {
+    foreach($project_shortinfo['api_versions'] as $api) {
       $url = $this->host.$this->project_data_url();
       // replace tokens
       $url =  str_replace('%p', $project_shortinfo['short_name'], $url);
