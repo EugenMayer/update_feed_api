@@ -16,8 +16,8 @@ function update_feed_api_admin_settings() {
   $form['feeds']['update_feed_api_feeds'] = array(
     '#type' => 'textarea',
     '#title' => t('Update-feeds'),
-    '#description' => t('Define which updat-feeds to fetch from where. Format: host|machine_name|class. Example: <em>"http://updates.drupal.org/release-history|drupal_org|Update_feed_xmlreader"</em>. For each feed use on separate line.'),
-    '#default_value' => variable_get('update_feed_api_feeds', 'http://updates.drupal.org/release-history|drupal_org|Update_feed_xmlreader')
+    '#description' => t('Define which updat-feeds to fetch from where. Format: host|machine_name|class. Example: <em>"http://updates.drupal.org/release-history/project-list/all|drupal_org|Update_feed_xmlreader"</em>. For each feed use on separate line.'),
+    '#default_value' => variable_get('update_feed_api_feeds', 'http://updates.drupal.org/release-history/project-list/all|drupal_org|Update_feed_xmlreader')
   );
   
   $form['feeds']['update_feed_api_stepping'] = array(
