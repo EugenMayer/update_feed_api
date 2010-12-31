@@ -59,7 +59,7 @@ class Update_feed_xmlreader extends Update_feed {
     }
     
     if(count($errors) > 0) {
-      drupal_set_message('Errors('.count($errors).') parsing this projects(missing fields): '.join(', ',$errors),'warning');
+      drupal_set_message('Not fechted projects('.count($errors).'), most probably no releases yet(missing fields): '.join(', ',$errors),'status');
     }
   }
   
