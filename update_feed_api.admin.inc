@@ -4,6 +4,13 @@
 // Copyright (c) 2010 KontextWork
 // Author: Eugen Mayer
 
+function ufa_test() {
+  //$p = update_feed_api_get_project('drupal_org', 'ctools', '6.x', TRUE);
+  $p = Project_factory::load_project('drupal_org','ctools', '6.x', TRUE);
+  dsm($p->get_release());
+  return '';
+}
+
 function update_feed_api_admin_settings() {
   $form['feeds'] = array(
     '#type' => 'fieldset',
@@ -16,8 +23,8 @@ function update_feed_api_admin_settings() {
   $form['feeds']['update_feed_api_feeds'] = array(
     '#type' => 'textarea',
     '#title' => t('Update-feeds'),
-    '#description' => t('Define which updat-feeds to fetch from where. Format: host|machine_name|class. Example: <em>"http://updates.drupal.org/release-history/project-list/all|drupal_org|Update_feed_xmlreader"</em>. For each feed use on separate line.'),
-    '#default_value' => variable_get('update_feed_api_feeds', 'http://updates.drupal.org/release-history/project-list/all|drupal_org|Update_feed_xmlreader')
+    '#description' => t('Define which updat-feeds to fetch from where. Format: host|machine_name|class. Example: <em>"http://updates.drupal.org/release-history|drupal_org|Update_feed_xmlreader"</em>. For each feed use on separate line.'),
+    '#default_value' => variable_get('update_feed_api_feeds', 'http://updates.drupal.org/release-history|drupal_org|Update_feed_xmlreader')
   );
   
   $form['feeds']['update_feed_api_stepping'] = array(
@@ -131,3 +138,4 @@ function update_feed_api_refresh_form_submit($form, &$form_state) {
   $feeds = array_keys($feeds);
   _update_feed_api_start_refresh_batch($feeds, $fetch_releases);
 }
+

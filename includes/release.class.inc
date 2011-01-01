@@ -33,7 +33,7 @@ class Release extends FeedEntryContainer{
     }
   }
   protected function validate_infos($infos) {
-    $req = array ( 'name', 'version', 'tag', 'version_major', 'version_extra', 
+    $req = array ( 'name', 'version','version_major',
                   'status', 'release_link', 'download_link', 'date', 'mdhash', 'filesize' );
     $diff = array_diff($req, array_keys($infos));
     if (count($diff) >0 ) {
@@ -53,7 +53,5 @@ class Release extends FeedEntryContainer{
     }
     // else
     return FALSE;
-  }
-  
-  
+  }  
 }

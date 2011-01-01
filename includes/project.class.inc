@@ -15,15 +15,16 @@ class Project extends FeedEntryContainer {
     $this->dest_table = 'update_feed_api_projects';
     $this->prim_key_field = 'pid';
     $this->server_key = $server_key;
+    
     // if we should load release and we have a primary key already
     // (project loaded from the DB) load all releases
-    
     if(($load_release) && $this->primary_key_exists($this->infos)) {
       $this->load_releases();
     };
   }
   
   public function add_release($infos, $terms) {
+    
     $this->releases[$infos['date']] = new Release($infos, $terms, $this);
     $this->sort_releases();
   }
@@ -161,12 +162,34 @@ class Project extends FeedEntryContainer {
   }
 
   protected function load_releases() {
-    if(!$this->full_fetched()) {
-      $project = update_feed_api_fetch_releases($this, $this->infos['api_version']);
+    if(!$this->full_fetched()) {      
+      update_feed_api_fetch_releases($this, $this->infos['api_version']);
+      // our pid has changed, so we need to reload ourselfs completely.
+      $query = db_select('update_feed_api_projects','ufap');
+      $query->condition( 'ufap.server_key', $this->server_key);
+      $query->condition( 'ufap.short_name' , $this->infos['short_name']);
+      $query->condition( 'ufap.api_version' , $this->infos['api_version']);
+      $query->fields('ufap',array('pid'));
+      $result = $query->execute();
+      $record = $result->fetchObject();
+
+      $query = db_select('update_feed_api_projects','ufap');
+      $query->condition('ufap.pid', $record->pid);
+      $query->fields('ufap');
+      $result = $query->execute();
+      $array = $result->fetchAssoc();
+      
+      $terms = unserialize($array['terms']);
+      $server_key = $array['server_key'];
+      unset($array['terms'], $array['server_key']);
+      $info = $array;
+      // this will rebuild our object and then call load_releases again.
+      $this->__construct($info, $terms, $server_key, TRUE);
+      return;
     }
   
     $prim_key = $this->primary_key_exists($this->infos);
-    if($prim_key == FALSE) {
+    if($prim_key == FALSE) {        
       // no need to load release, as we did not get saved in the DB yet
       return;
     }
@@ -176,9 +199,10 @@ class Project extends FeedEntryContainer {
     $result = $query->execute();
     
     foreach($result as $record) {
-      $release = Release_factory::load_by_rid($record->rid, $this);
+      $release = Release_factory::load_by_rid($record->rid, $this);      
       $this->releases[$release->get_info('date')] = $release;
     }
+
     $this->sort_releases();
   }
 }

@@ -14,20 +14,83 @@ class Update_feed_xmlreader extends Update_feed {
     return TRUE;
   }  
   
+  protected function fetch_project_details($project_shortinfo, $fetch_releases = TRUE, $save = FALSE) {
+    $projects_by_api = array();
+    if(!array_key_exists('api_versions',$project_shortinfo)) {
+      // TODO: what to do here?When a project does not have an API, we cant fetch anything 
+      return array();
+    }
+    foreach($project_shortinfo['api_versions'] as $api) {
+      $releases = NULL;
+      $url = $this->host.$this->project_data_url();
+      // replace tokens
+      $url =  str_replace('%p', $project_shortinfo['short_name'], $url);
+      $url =  str_replace('%api', $api, $url);
+      $reader = new XMLReader();
+      $reader->open($url);
+      $errors = array();
+      while ($reader->read()) {
+        if ($reader->nodeType == XMLReader::ELEMENT && $reader->name == 'project') {
+          $project = $this->xml_handle_project($reader);
+          // else just save a dummy for every project          
+          $terms = $project['terms'];
+          if(!empty($project['releases']) && is_array($project['releases']) && count($project['releases']) > 0) {
+            $releases = $project['releases'];
+          }
+          unset($project['api_versions'], $project['terms'], $project['releases']);          
+          try {
+            $project_obj = new Project($project, $terms, $this->server_key);
+          }
+          catch (Exception $e) {
+            drupal_set_message('Could not create project '.$infos['short_name'].' due to missing fields. Error: '.$e->getMessage(), 'warning');
+            // Could not create release, most probably validation failed, so fields missing1            
+            //TODO: log this?
+            continue;
+          }
+          if($fetch_releases && $releases != NULL) {        
+            $this->add_releases($releases, $project_obj);
+            // update full_fetched, set it to the current date
+            $project_obj->set_info('full_fetched', time());
+          }
+      
+          if($save) {
+            try {
+              $project_obj->save();
+            }
+            catch(Exception $e) {
+              drupal_set_message('Could not save ('.$infos['short_name'].') due to errors (dublicate?) in the DB. '.$e, 'error');
+            }
+          }
+          $projects_by_api[$api] = $project_obj;
+        }
+      }
+    }
+    return $projects_by_api;
+  }
+
+  protected function add_releases($releases, &$project_obj) {
+    foreach($releases as $release) {        
+        $terms = $release['terms'];
+        unset($release['terms']);
+        $project_obj->add_release($release,$terms);
+    }
+  }
+
   protected function fetch_and_save_all_projects($fetch_releases = TRUE, $save = TRUE){
     $reader = new XMLReader();
     $reader->open($this->project_list_store);
     $errors = array();
     while ($reader->read()) {
       if ($reader->nodeType == XMLReader::END_ELEMENT && $reader->name == 'projects') {
-	// The end of the outer root - we are done.
+        // The end of the outer root - we are done.
         break;
       }
       if ($reader->nodeType == XMLReader::ELEMENT && $reader->name == 'project') {
-        $project = $this->xml_handle_project($reader);
-      }
-      if ($reader->nodeType == XMLReader::END_ELEMENT && $reader->name == 'project') {
-        // When we close a project tag, add it to the database.
+        $project = $this->xml_handle_project($reader);        
+        if($project == FALSE) {
+          drupal_set_message('Parsing error (project tag not closed)?', 'error');
+        }
+        // The project has been fully fetched, so save it into the database
         if(!$this->validate_project_infos($project)) {
           $errors[] = $project['short_name'];
           // fields missing
@@ -78,10 +141,10 @@ class Update_feed_xmlreader extends Update_feed {
     $project = array();
     while ($reader->read()) {
       if ($reader->nodeType == XMLReader::END_ELEMENT && $reader->name == 'project') {
-	// The project has been parsed. return it, so its get saved in the outer method
+        // The project has been parsed. return it, so its get saved in the outer method
         return $project;
       }
-      if ($reader->nodeType == XMLReader::ELEMENT && in_array($reader->name, array('title', 'short_name', 'link','project_status'))) {
+      if ($reader->nodeType == XMLReader::ELEMENT && in_array($reader->name, array('title', 'short_name', 'link','project_status','supported_majors','recommended_major','default_major','api_version'))) {
         // if it is one of the default-field
         $name = $reader->name;
         $reader->read();
@@ -95,11 +158,81 @@ class Update_feed_xmlreader extends Update_feed {
         $project['terms'] = array();
         $project['terms'] = $this->xml_handle_terms($reader);
       }
+      if ($reader->nodeType == XMLReader::ELEMENT && $reader->name == 'releases') {                        
+        $project['releases'] = array();
+        $project['releases'] = $this->xml_handle_releases($reader);
+      }
     }
-    return $project;
+    return FALSE;
   }
-  
-  protected function xml_handle_terms($reader) {
+
+  protected function xml_handle_releases($reader) {
+    $releases = array();
+    while ($reader->read()) {
+      if ($reader->nodeType == XMLReader::END_ELEMENT && $reader->name == 'releases') {
+        return $releases;
+      }
+      if ($reader->nodeType == XMLReader::ELEMENT && $reader->name == 'release') {
+        $releases[] = $this->xml_handle_release($reader);
+      }
+    }
+    return FALSE;
+  }
+  protected function xml_handle_release($reader) {
+    $release = array('terms' => array());
+    while ($reader->read()) {
+      if ($reader->nodeType == XMLReader::END_ELEMENT && $reader->name == 'release') {        
+        return $release;
+      }
+      if ($reader->nodeType == XMLReader::ELEMENT && in_array($reader->name, array('name', 'version', 'tag', 'version_major', 'version_extra', 'status', 'release_link', 'download_link', 'mdhash', 'date', 'filesize'))) {
+        // if it is one of the default-field
+        $name = $reader->name;
+        $reader->read();
+        $release[$name] = $reader->value;
+      }      
+      if ($reader->nodeType == XMLReader::ELEMENT && $reader->name == 'terms') {        
+        $release['terms'] = $this->xml_handle_release_terms($reader);        
+      }
+    }
+    return FALSE;
+ }
+
+ protected function xml_handle_release_terms($reader) {
+  $terms = array();
+  while ($reader->read()) {
+    if ($reader->nodeType == XMLReader::END_ELEMENT && $reader->name == 'terms') {
+      return $terms;
+    }
+    if ($reader->nodeType == XMLReader::ELEMENT && $reader->name == 'term') {
+      $term = $this->xml_handle_release_term($reader);      
+      if($term != FALSE && $term['name'] != '') {        
+        $terms[$term['name']][] = $term['value'];        
+      }
+    }      
+  }
+  return FALSE;  
+ }
+ 
+ protected function xml_handle_release_term($reader) {
+  $term = array( 'name' => '', 'value' => '');
+  while ($reader->read()) {
+    if ($reader->nodeType == XMLReader::END_ELEMENT && $reader->name == 'term') {
+      return $term;
+    }  
+    if ($reader->nodeType == XMLReader::ELEMENT && $reader->name == 'name') {        
+      $reader->read();
+      $term['name'] = $reader->value;      
+    }
+    if ($reader->nodeType == XMLReader::ELEMENT && $reader->name == 'value') {
+      $reader->read();
+      $value = $reader->value;
+      $term['value'] = $value;
+    }
+  }
+  return FALSE;
+ }
+
+ protected function xml_handle_terms($reader) {
     $terms = array();
     while ($reader->read()) {
       if ($reader->nodeType == XMLReader::END_ELEMENT && $reader->name == 'terms') {
@@ -116,7 +249,7 @@ class Update_feed_xmlreader extends Update_feed {
         $terms[$name][] = $value;
       }
     }
-    return $terms;
+    return FALSE;
   }
   
   protected function xml_handle_api_versions($reader) {
@@ -132,6 +265,6 @@ class Update_feed_xmlreader extends Update_feed {
         $apis[$reader->value] = $reader->value;
       }
     }
-    return $apis;
+    return FALSE;
   }
 }
