@@ -19,15 +19,15 @@ class Update_feed_xmlreader extends Update_feed {
     $reader->open($this->project_list_store);
     $errors = array();
     while ($reader->read()) {
-      // When we close a project tag, add it to the database.
       if ($reader->nodeType == XMLReader::END_ELEMENT && $reader->name == 'projects') {
+	// The end of the outer root - we are done.
         break;
       }
       if ($reader->nodeType == XMLReader::ELEMENT && $reader->name == 'project') {
-        // If it isn't a type we know how to process, then skip it.
         $project = $this->xml_handle_project($reader);
       }
       if ($reader->nodeType == XMLReader::END_ELEMENT && $reader->name == 'project') {
+        // When we close a project tag, add it to the database.
         if(!$this->validate_project_infos($project)) {
           $errors[] = $project['short_name'];
           // fields missing
@@ -51,10 +51,9 @@ class Update_feed_xmlreader extends Update_feed {
             $p->save();
           }
           catch(Exception $e) {
-            drupal_set_message('Could not save '.$p->get_info('short_name').' into database', 'error');
+            drupal_set_message('Could not save '.$infos['short_name'].' into database', 'error');
           }
         }
-        continue;
       }
     }
     
@@ -78,12 +77,12 @@ class Update_feed_xmlreader extends Update_feed {
   protected function xml_handle_project($reader) {
     $project = array();
     while ($reader->read()) {
-      // When we close a project tag, add it to the database.
       if ($reader->nodeType == XMLReader::END_ELEMENT && $reader->name == 'project') {
+	// The project has been parsed. return it, so its get saved in the outer method
         return $project;
       }
-      
       if ($reader->nodeType == XMLReader::ELEMENT && in_array($reader->name, array('title', 'short_name', 'link','project_status'))) {
+        // if it is one of the default-field
         $name = $reader->name;
         $reader->read();
         $project[$name] = $reader->value;
@@ -103,7 +102,6 @@ class Update_feed_xmlreader extends Update_feed {
   protected function xml_handle_terms($reader) {
     $terms = array();
     while ($reader->read()) {
-      // When we close a project tag, add it to the database.
       if ($reader->nodeType == XMLReader::END_ELEMENT && $reader->name == 'terms') {
         return $terms;
       }
@@ -124,7 +122,6 @@ class Update_feed_xmlreader extends Update_feed {
   protected function xml_handle_api_versions($reader) {
     $apis = array();
     while ($reader->read()) {
-      // When we close a project tag, add it to the database.
       if ($reader->nodeType == XMLReader::END_ELEMENT && $reader->name == 'api_versions') {
         // filter all not allowed APIs
         $apis = array_intersect($this->allowed_api_versions, $apis);
