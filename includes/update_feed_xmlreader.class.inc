@@ -173,7 +173,10 @@ class Update_feed_xmlreader extends Update_feed {
         return $releases;
       }
       if ($reader->nodeType == XMLReader::ELEMENT && $reader->name == 'release') {
-        $releases[] = $this->xml_handle_release($reader);
+        $release = $this->xml_handle_release($reader);
+	if($release != FALSE) {
+  	  $releases[] = $release;
+	}
       }
     }
     return FALSE;
@@ -181,8 +184,12 @@ class Update_feed_xmlreader extends Update_feed {
   protected function xml_handle_release($reader) {
     $release = array('terms' => array());
     while ($reader->read()) {
-      if ($reader->nodeType == XMLReader::END_ELEMENT && $reader->name == 'release') {        
-        return $release;
+      if ($reader->nodeType == XMLReader::END_ELEMENT && $reader->name == 'release') {
+	if($release['status'] == 'published') { 
+	  return $release;
+	}
+	// else
+	return FALSE;
       }
       if ($reader->nodeType == XMLReader::ELEMENT && in_array($reader->name, array('name', 'version', 'tag', 'version_major', 'version_extra', 'status', 'release_link', 'download_link', 'mdhash', 'date', 'filesize'))) {
         // if it is one of the default-field
