@@ -185,13 +185,13 @@ class Update_feed_xmlreader extends Update_feed {
     $release = array('terms' => array());
     while ($reader->read()) {
       if ($reader->nodeType == XMLReader::END_ELEMENT && $reader->name == 'release') {
-	if($release['status'] == 'published') { 
-	  return $release;
-	}
-	// else
-	return FALSE;
+        if($release['status'] == 'published') { 
+          return $release;
+        }
+        // else
+        return FALSE;
       }
-      if ($reader->nodeType == XMLReader::ELEMENT && in_array($reader->name, array('name', 'version', 'tag', 'version_major', 'version_extra', 'status', 'release_link', 'download_link', 'mdhash', 'date', 'filesize'))) {
+      if ($reader->nodeType == XMLReader::ELEMENT && in_array($reader->name, array('name', 'version', 'tag', 'version_major', 'version_extra','version_patch', 'status', 'release_link', 'download_link', 'mdhash', 'date', 'filesize'))) {
         // if it is one of the default-field
         $name = $reader->name;
         $reader->read();

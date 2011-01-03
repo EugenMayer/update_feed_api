@@ -124,7 +124,13 @@ class Project extends FeedEntryContainer {
     }
     return 'UNKNOWN';
   }
-  
+  public function project_link($label = NULL) {
+     if(!empty($label)) {
+      return l($label,$this->infos['link']);
+    }
+    // 
+    return $this->infos['link'];    
+  }
   protected function sort_releases() {
     usort($this->releases, array($this, 'compare_releases'));
   }

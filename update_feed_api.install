@@ -127,6 +127,11 @@ function _update_feed_api_get_schema() {
         'length' => '40',
         'default' => '',
       ),
+      'version_patch' => array(
+        'type' => 'varchar',
+        'length' => '40',
+        'default' => '',
+      ),
       'version_extra' => array(
         'type' => 'varchar',
         'length' => '15',

@@ -25,6 +25,14 @@ class Release extends FeedEntryContainer{
   public function module_name() {
     return $this->parent_project->get_info('short_name');
   }
+
+  public function release_link($label = NULL) {
+    if(!empty($label)) {
+      return l($label,$this->infos['release_link']);
+    }
+    // 
+   return $this->infos['release_link'];    
+  }
   protected function validate_terms($terms)  {
     $req = array (); 
     $diff = array_diff($req, array_keys($terms));
@@ -53,5 +61,5 @@ class Release extends FeedEntryContainer{
     }
     // else
     return FALSE;
-  }  
+  }
 }

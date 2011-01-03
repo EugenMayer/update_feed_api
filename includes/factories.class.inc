@@ -81,6 +81,21 @@ class Release_factory {
     }
     return self::init_from_db($result,$project);
   }
+
+  static public function load_by_version($short_name, $version_string, $server_key) {
+    $query = db_select('update_feed_api_releases','ufar');
+    $query->leftJoin('update_feed_api_projects','ufap','ufar.pid=ufap.pid AND ufar.server_key=ufap.server_key');
+    $query->condition('ufar.version', $version_string);
+    $query->condition('ufap.short_name', $short_name);
+    $query->condition('ufar.server_key', $server_key);
+    $query->fields('ufar');
+    $result = $query->execute();
+    $result = $result->fetchAssoc();
+    if ($result == NULL) {
+      return FALSE;
+    }
+    return self::init_from_db($result,$project);
+  }
   
   static protected function init_from_db($array, $project) {
     $terms = unserialize($array['terms']);
