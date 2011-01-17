@@ -158,9 +158,30 @@ class Update_feed_xmlreader extends Update_feed {
         $project['terms'] = array();
         $project['terms'] = $this->xml_handle_terms($reader);
       }
+      if ($reader->nodeType == XMLReader::ELEMENT && $reader->name == 'sourcecode') {
+        $sourcecode = $this->xml_handle_sourcecode($reader);        
+        $project['sourcecode_uri'] = $sourcecode['uri'];
+        $project['sourcecode_type'] = $sourcecode['type'];
+      }
       if ($reader->nodeType == XMLReader::ELEMENT && $reader->name == 'releases') {                        
         $project['releases'] = array();
         $project['releases'] = $this->xml_handle_releases($reader);
+      }
+    }
+    return FALSE;
+  }
+
+  protected function xml_handle_sourcecode($reader) {
+    $sourcecode = array();
+    while ($reader->read()) {
+      if ($reader->nodeType == XMLReader::END_ELEMENT && $reader->name == 'sourcecode') {
+        return $sourcecode;      
+      }
+      if ($reader->nodeType == XMLReader::ELEMENT && in_array($reader->name, array('uri', 'type'))) {
+        // if it is one of the default-field
+        $name = $reader->name;
+        $reader->read();
+        $sourcecode[$name] = $reader->value;
       }
     }
     return FALSE;
@@ -174,13 +195,14 @@ class Update_feed_xmlreader extends Update_feed {
       }
       if ($reader->nodeType == XMLReader::ELEMENT && $reader->name == 'release') {
         $release = $this->xml_handle_release($reader);
-	if($release != FALSE) {
-  	  $releases[] = $release;
-	}
+        if($release != FALSE) {
+            $releases[] = $release;
+        }
       }
     }
     return FALSE;
   }
+
   protected function xml_handle_release($reader) {
     $release = array('terms' => array());
     while ($reader->read()) {

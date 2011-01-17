@@ -26,6 +26,10 @@ class Release extends FeedEntryContainer{
     return $this->parent_project->get_info('short_name');
   }
 
+  public function get_project() {
+    return $this->parent_project;
+  }
+
   public function release_link($label = NULL) {
     if(!empty($label)) {
       return l($label,$this->infos['release_link']);

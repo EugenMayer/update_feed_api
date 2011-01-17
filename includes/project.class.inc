@@ -107,6 +107,9 @@ class Project extends FeedEntryContainer {
         case 'Themes':
           return 'theme';
         break;
+        case 'Libraries':
+          return 'libraries';
+        break;
         case 'Installation profiles':
           return 'profile';
         break;
@@ -131,10 +134,26 @@ class Project extends FeedEntryContainer {
     // 
     return $this->infos['link'];    
   }
+
+  public function sourcecode_type() {
+    switch($this->infos['sourcecode_type']) {
+      case 'git':
+        return 'git';
+      break;
+      default:
+        return $this->infos['sourcecode_type'];
+      break;
+    }
+  }
+
+  public function sourcecode_uri() {
+    return $this->infos['sourcecode_uri'];      
+  }
+
   protected function sort_releases() {
     usort($this->releases, array($this, 'compare_releases'));
   }
-  
+
   protected function compare_releases($a, $b) {
     $a_val = $a->get_info('date');
     $b_val = $b->get_info('date');

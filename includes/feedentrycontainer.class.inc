@@ -76,7 +76,7 @@ abstract class FeedEntryContainer {
     }
     else {
       $key_value = db_insert($this->dest_table)->fields($fields)->execute();
-      $this->infos[$this->prim_key_field ] = $key_value;
+      $this->infos[$this->prim_key_field] = $key_value;
     }
   }
   
