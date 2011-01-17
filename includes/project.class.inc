@@ -119,10 +119,9 @@ class Project extends FeedEntryContainer {
         case 'Translations':
           return 'translation';
         break;
-        case 'Drupal project':
+        case 'Drupal project':        
           return 'core';
-        break;
-        
+        break;        
       }
     }
     return 'UNKNOWN';
