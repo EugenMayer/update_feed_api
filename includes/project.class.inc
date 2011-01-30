@@ -139,6 +139,9 @@ class Project extends FeedEntryContainer {
       case 'git':
         return 'git';
       break;
+      case 'GIT repository tags':
+        return 'git';
+      break;
       default:
         return $this->infos['sourcecode_type'];
       break;
