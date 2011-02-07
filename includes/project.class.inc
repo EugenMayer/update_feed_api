@@ -45,7 +45,7 @@ class Project extends FeedEntryContainer {
       //else just continue
     }
     
-    throw new Exception('No release found with the version '.$version);
+    throw new Exception('(Project: '.$this->infos['short_name'].' ) No release found with the version '.$version);
   }
   
   public function server_key() {
