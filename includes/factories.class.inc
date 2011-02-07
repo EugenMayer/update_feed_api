@@ -33,7 +33,7 @@ class Project_factory {
     return self::load_by_pid($result->pid, $load_release);
   }
   
-  static public function load_projects($server_key, $api, $load_release = TRUE, $search = NULL) {
+  static public function load_projects($server_key, $api, $load_release = TRUE, $search = NULL, $type = NULL) {
     $query = db_select('update_feed_api_projects','ufap');
     $query->condition( 'ufap.server_key', $server_key);
     $query->condition( 'ufap.api_version' , $api);
@@ -53,8 +53,10 @@ class Project_factory {
     $projects = array();
     foreach($result as $record) {
       $project = self::load_by_pid($record->pid, $load_release);
-      
-      $projects[$project->get_info('short_name')] = $project;
+      // filter by type
+      if($type == NULL || $project->type() == $type) {
+        $projects[$project->get_info('short_name')] = $project;
+      }
     }
     
     return $projects;

@@ -14,7 +14,7 @@ class Project_list {
     $this->defaults = $defaults;
   }
   
-  public function search($keyword, $server_key = NULL, $api_version = NULL) {
+  public function search($keyword, $server_key = NULL, $api_version = NULL, $type = NULL) {
     // making server_key / api_version an argument is just a helper for later
     // integration of project lists, which support overlays
     if($api_version == NULL && array_key_exists('api_version', $this->defaults)) {
@@ -30,7 +30,10 @@ class Project_list {
     else {
       throw new Exception('please pass the server_key or pass it as default');
     }   
-    $this->projects = Project_factory::load_projects($server_key, $api_version, FALSE, $keyword);
+    if($type == NULL && array_key_exists('type', $this->defaults)) {
+      $type = $this->defaults['type'];
+    } 
+    $this->projects = Project_factory::load_projects($server_key, $api_version, FALSE, $keyword, $type);
   }
   
   public function get_projects() {

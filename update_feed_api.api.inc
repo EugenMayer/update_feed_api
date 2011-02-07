@@ -77,3 +77,7 @@ function update_feed_api_update_feed($feed, $fetch_releases = FALSE) {
     $status = $feedObj->fetch_next_projects($fetch_releases, TRUE);
   }
 }
+
+function _update_feed_api_package_types() {
+  return array('module','libraries','core','theme','profile','theme_engine','translation');
+}
