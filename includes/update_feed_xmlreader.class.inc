@@ -26,6 +26,8 @@ class Update_feed_xmlreader extends Update_feed {
       // replace tokens
       $url =  str_replace('%p', $project_shortinfo['short_name'], $url);
       $url =  str_replace('%api', $api, $url);
+      $url =  str_replace('%type', $project_shortinfo['type'], $url);
+
       $reader = new XMLReader();
       $reader->open($url);
       $errors = array();
@@ -58,7 +60,7 @@ class Update_feed_xmlreader extends Update_feed {
               $project_obj->save();
             }
             catch(Exception $e) {
-              drupal_set_message('Could not save ('.$infos['short_name'].') due to errors (dublicate?) in the DB. '.$e, 'error');
+              drupal_set_message('Could not save ('.$project['short_name'].') due to errors (dublicate?) in the DB. '.$e, 'error');
             }
           }
           $projects_by_api[$api] = $project_obj;
@@ -96,6 +98,7 @@ class Update_feed_xmlreader extends Update_feed {
           // fields missing
           continue;
         }
+        $project['type'] = Project::terms_to_type($project['terms']);
         // if we have to fetch the release, just use this helper function
         // it will fetch all releases for every api version of this project
         if($fetch_releases) {

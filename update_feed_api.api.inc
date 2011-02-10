@@ -7,24 +7,24 @@
 /*
  * Search and get projects of a specific api of a specifc server matching the short_name / title
  */
-function update_feed_api_search_projects($server_key, $api_version, $search) {
-  $projects = Project_factory::load_projects($server_key, $api_version, FALSE, $search);
+function update_feed_api_search_projects($server_key, $api_version, $search, $type = NULL) {
+  $projects = Project_factory::load_projects($server_key, $api_version, FALSE, $search, $type);
   return $projects;
 }
 
 /*
  *  Load all projects of a specific api of a specifc server
  */
-function update_feed_api_get_projects($server_key, $api_version, $load_releases = TRUE) {
-  $projects = Project_factory::load_projects($server_key, $api_version, $load_releases);
+function update_feed_api_get_projects($server_key, $api_version, $load_releases = TRUE, $type = NULL) {
+  $projects = Project_factory::load_projects($server_key, $api_version, $load_releases, NULL, $type);
   return $projects;
 }
 
 /*
  *  Load a specific projects of a specific api of a specific server
  */
-function update_feed_api_get_project($server_key, $short_name, $api_version, $load_releases = TRUE) {
-  $project = Project_factory::load_project($server_key,$short_name, $api_version,$load_releases);
+function update_feed_api_get_project($server_key, $short_name, $api_version, $load_releases = TRUE, $type = 'module') {
+  $project = Project_factory::load_project($server_key,$short_name, $api_version,$load_releases, $type);
   return $project;
 }
 

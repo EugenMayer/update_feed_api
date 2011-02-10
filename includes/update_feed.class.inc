@@ -199,6 +199,7 @@ class Update_feed implements IUpdate_feed{
       // replace tokens
       $url =  str_replace('%p', $project_shortinfo['short_name'], $url);
       $url =  str_replace('%api', $api, $url);
+      $url =  str_replace('%type', $project_shortinfo['type'], $url);
       
       $result = drupal_http_request($url);
       if($result == FALSE) {
@@ -316,7 +317,7 @@ class Update_feed implements IUpdate_feed{
   }
   
   protected function project_data_url() {
-    return '/%p/%api';
+    return '/%p/%api/%type';
   }
   
   public function overall_project_count() {

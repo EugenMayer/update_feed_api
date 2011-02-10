@@ -41,7 +41,7 @@ class Project_list {
   }
   
   public function add_project($p) {
-    $this->projects[$p->get_info('short_name')] = $p;
+    $this->projects[$p->get_info('short_name').'_'.$p->get_info('type')] = $p;
   }
   
   public function delete_project($short_name) {
@@ -50,14 +50,14 @@ class Project_list {
     }
   }
   
-  public function has_project($short_name) {
-    return array_key_exists($short_name, $this->projects);
+  public function has_project($short_name, $type = 'module') {
+    return array_key_exists($short_name."_$type", $this->projects);
   }
   
   public function to_array($key = 'short_name') {
     $result = array();
     foreach($this->projects as $p) {
-      $result[$p->get_info('short_name')] = $p->get_info($key); 
+      $result[$p->get_info('short_name')."_$type"] = $p->get_info($key); 
     }
     
     return $result;

@@ -15,12 +15,12 @@ class Project extends FeedEntryContainer {
     $this->dest_table = 'update_feed_api_projects';
     $this->prim_key_field = 'pid';
     $this->server_key = $server_key;
-    
     // if we should load release and we have a primary key already
     // (project loaded from the DB) load all releases
     if(($load_release) && $this->primary_key_exists($this->infos)) {
       $this->load_releases();
     };
+    $this->infos['type'] = $this->type(); 
   }
   
   public function add_release($infos, $terms) {
@@ -88,14 +88,11 @@ class Project extends FeedEntryContainer {
   }
   
   public function type() {
-    try {
-      // Its part of the project meta data, so check there.
-      $type = $this->get_term('Projects');
-    }
-    catch(Exception $e) {
-      // as this term is not set, we cant determine the type at all
-      return 'UNKNOWN';
-    }
+    return self::terms_to_type($this->get_terms());
+  }
+ 
+  static function terms_to_type($terms) {
+    $type = $terms['Projects'];
     if(!is_array($type)) {
       $type = array($type);
     }
@@ -126,6 +123,7 @@ class Project extends FeedEntryContainer {
     }
     return 'UNKNOWN';
   }
+
   public function project_link($label = NULL) {
      if(!empty($label)) {
       return l($label,$this->infos['link']);
@@ -196,6 +194,7 @@ class Project extends FeedEntryContainer {
       $query->condition( 'ufap.server_key', $this->server_key);
       $query->condition( 'ufap.short_name' , $this->infos['short_name']);
       $query->condition( 'ufap.api_version' , $this->infos['api_version']);
+      $query->condition( 'ufap.type' , $this->infos['type']);
       $query->fields('ufap',array('pid'));
       $result = $query->execute();
       $record = $result->fetchObject();

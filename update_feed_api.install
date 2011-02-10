@@ -68,6 +68,11 @@ function _update_feed_api_get_schema() {
         'length' => '40',
         'default' => '',
       ),
+      'type' => array(
+        'type' => 'varchar',
+        'length' => '15',
+        'default' => '',
+      ),
       'link' => array(
         'type' => 'varchar',
         'length' => '255',
@@ -95,7 +100,7 @@ function _update_feed_api_get_schema() {
       ),
     ),
     'primary key' => array('pid'),
-    'unique keys' => array('server_relation' =>  array( 'short_name', 'server_key', 'api_version') ),
+    'unique keys' => array('server_relation' =>  array( 'short_name', 'server_key', 'api_version','type') ),
   );
   $schema['update_feed_api_releases'] = array(
     'description' => 'Stores releases',
@@ -191,5 +196,12 @@ function update_feed_api_update_6007() {
   $ret = array();
   db_add_field($ret, 'update_feed_api_projects', 'sourcecode_uri', array('type' => 'varchar', 'not null' => FALSE, 'default' => "",'length' => 255));
   db_add_field($ret, 'update_feed_api_projects', 'sourcecode_type', array('type' => 'varchar','not null' => FALSE, 'default' => "",'length' => 100));
+  return $ret;
+}
+
+function update_feed_api_update_6008() {
+  $ret = array();
+  db_add_field($ret, 'update_feed_api_projects', 'type', array('type' => 'varchar', 'not null' => FALSE, 'default' => "",'length' => 15));
+  db_query("ALTER TABLE  {update_feed_api_projects} DROP INDEX  `server_relation` , ADD UNIQUE  `server_relation` (  `short_name` ,  `server_key` ,  `api_version` ,  `type` )");
   return $ret;
 }

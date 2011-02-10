@@ -18,11 +18,12 @@ class Project_factory {
     return self::init_from_db($result, $load_release);
   }
   
-  static public function load_project($server_key, $short_name, $api, $load_release = TRUE) {
+  static public function load_project($server_key, $short_name, $api, $load_release = TRUE, $type = 'module') {
     $query = db_select('update_feed_api_projects','ufap');
     $query->condition( 'ufap.server_key',$server_key);
     $query->condition( 'ufap.short_name' , $short_name);
     $query->condition( 'ufap.api_version' , $api);
+    $query->condition( 'ufap.type' , $type);
     $query->fields('ufap',array('pid'));
     $result = $query->execute();
     $result = $result->fetchObject();
@@ -55,7 +56,7 @@ class Project_factory {
       $project = self::load_by_pid($record->pid, $load_release);
       // filter by type
       if($type == NULL || $project->type() == $type) {
-        $projects[$project->get_info('short_name')] = $project;
+        $projects[$project->get_info('short_name').'_'.$project->get_info('type')] = $project;
       }
     }
     
@@ -84,11 +85,12 @@ class Release_factory {
     return self::init_from_db($result,$project);
   }
 
-  static public function load_by_version($short_name, $version_string, $server_key) {
+  static public function load_by_version($short_name, $version_string, $server_key, $type) {
     $query = db_select('update_feed_api_releases','ufar');
     $query->leftJoin('update_feed_api_projects','ufap','ufar.pid=ufap.pid AND ufar.server_key=ufap.server_key');
     $query->condition('ufar.version', $version_string);
     $query->condition('ufap.short_name', $short_name);
+    $query->condition('ufap.type', $type);
     $query->condition('ufar.server_key', $server_key);
     $query->fields('ufar');
     $result = $query->execute();

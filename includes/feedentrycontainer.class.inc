@@ -21,6 +21,10 @@ abstract class FeedEntryContainer {
     $this->terms = $terms;
   }
   
+  
+  public function get_terms() {
+    return $this->terms;
+  }
   public function get_term($key) {
     if (array_key_exists($key, $this->terms)) {
       return $this->terms[$key];
