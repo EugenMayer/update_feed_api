@@ -17,10 +17,10 @@ class Project extends FeedEntryContainer {
     $this->server_key = $server_key;
     // if we should load release and we have a primary key already
     // (project loaded from the DB) load all releases
+    $this->infos['type'] = $this->type();
     if(($load_release) && $this->primary_key_exists($this->infos)) {
       $this->load_releases();
     };
-    $this->infos['type'] = $this->type(); 
   }
   
   public function add_release($infos, $terms) {

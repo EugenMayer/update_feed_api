@@ -122,6 +122,7 @@ class Update_feed implements IUpdate_feed{
     }
     $project_info = array(
       'short_name' => $project->get_info('short_name'),
+      'type' => $project->get_info('type'),
       'api_versions' => $api_versions,
     );
     
