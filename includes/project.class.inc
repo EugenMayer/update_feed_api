@@ -24,17 +24,12 @@ class Project extends FeedEntryContainer {
   }
   
   public function add_release($infos, $terms) {
-    
-    $this->releases[$infos['date']] = new Release($infos, $terms, $this);
+    $this->releases[$infos['version']] = new Release($infos, $terms, $this);
     $this->sort_releases();
   }
-  
-  public function get_release($date = NULL) {
-    if($date != NULL) {
-      $this->releases[$date];
-    }
-    // else
-    return $this->releases;
+  // deprecated
+  public function get_release($version = NULL) {
+    return $this->get_release_by_version($version);		
   }
   
   public function get_release_by_version($version) {
@@ -226,7 +221,7 @@ class Project extends FeedEntryContainer {
     
     foreach($result as $record) {
       $release = Release_factory::load_by_rid($record->rid, $this);      
-      $this->releases[$release->get_info('date')] = $release;
+      $this->releases[$release->get_info('version')] = $release;
     }
 
     $this->sort_releases();
