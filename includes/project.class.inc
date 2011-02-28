@@ -150,13 +150,7 @@ class Project extends FeedEntryContainer {
   }
 
   protected function compare_releases($a, $b) {
-    $a_val = $a->get_info('date');
-    $b_val = $b->get_info('date');
-    if($a_val == $b_val) {
-      return 0;
-    }
-    
-    return $a_val < $b_val ? 1 : -1;
+    return $a->compare_versions($b->get_info('version'),$a->get_info('version'),'mj');
   }
   
   protected function validate_terms($terms)  {

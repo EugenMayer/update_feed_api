@@ -30,6 +30,93 @@ class Release extends FeedEntryContainer{
     return $this->parent_project;
   }
 
+  public function has_newer_release($type) {
+    $releases = $this->parent_project->releases_to_array('version');
+    $result = FALSE;
+    $cv = $this->infos['version'];
+    foreach($releases as $ver => $r_key ) {
+      // if current verison is smaller then the checked one
+      if($this->compare_versions($cv,$ver, $type) == -1) {
+	// and the curretn result is smaller then the checked one
+       if(
+	 $result == FALSE || 
+         $this->compare_versions($result['ver'],$ver, $type) == -1
+       ) {
+	  // set the result
+	  $result = array ('ver' => $ver, 'key' => $r_key);
+       };
+     }
+    }
+    if($result != FALSE) {
+      return $this->parent_project->get_release($result['key']);
+    }
+    // else
+    return FALSE;
+  }
+
+  public function compare_versions($cv, $v, $type) {
+     $cv = $this->parse_version($cv);
+     $v = $this->parse_version($v);
+     switch($type) {
+	case 'mj':
+          if($cv['mj'] < $vv['mj']) {
+	    return -1;
+ 	  }
+	  else if($cv['mj'] > $v['mj']) {
+	    return 1;
+ 	  }
+	  // else just check the minors
+	case 'mn':
+         if($cv['mj'] != $v['mj']) {
+	   return 1;
+ 	 }
+	 // if the minor is small, its smaller :)
+         if(is_numeric($v['mn']) && $cv['mn'] < $v['mn']) {
+            return -1;    
+         }
+ 	 // the minor is bigger and mj is equal, so its bigger
+	 else if(is_numeric($v['mn']) && $cv['mn'] > $v['mn']) {
+            return 1;    
+  	 }
+	 else if(is_numeric($v['mn']) && $cv['mn'] == $v['mn']) {
+  	   if($cv['extra'] != '' && $this->compare_version_extra($cv,$v) == -1) {
+             return -1;    
+  	   } 
+         }
+	break;
+    }
+    return 1;
+  }
+
+  protected function compare_version_extra($a,$b) {
+    $a['extrav'] = $a['extrav'] == '' ? 0 : $a['extrav'];
+    $b['extrav'] = $b['extrav'] == '' ? 0 : $b['extrav'];
+    $extra = $this->compare_extra_string($a['extra'],$b['extra']);
+    if($extra == 0) {
+      return $a['extrav'] < $b['extrav'] ? -1 : 1;
+    }
+    return $extra; 
+  }
+  protected function compare_extra_string($a, $b) {
+    $pattern = array ('dev','alpha','beta','rc');
+    $replace = array (1,2,3,4);
+    $a = str_replace($pattern,$replace,$a);
+    $b = str_replace($pattern,$replace,$b);
+    if($a == $b) {
+      return 0;
+    }
+    return $a < $b ? -1 : 1;
+  }
+ 
+  public function parse_version($version) {
+    // example: 6.x-2.0-rc3
+    $pattern = '/^(?<core>\d\.\w)-(?<mj>\d+)\.(?<mn>\w+)-?(?<extra>(rc|dev|beta|alpha))?(?<extrav>\d+)?$/';
+    if (preg_match($pattern, $version, $matches)) {
+      return $matches;
+    };
+    return array();
+  }
+
   public function release_link($label = NULL) {
     if(!empty($label)) {
       return l($label,$this->infos['release_link']);
@@ -44,6 +131,7 @@ class Release extends FeedEntryContainer{
       throw new Exception('Not all required terms set from release. Missing: ('.join(',',$diff).')');
     }
   }
+
   protected function validate_infos($infos) {
     $req = array ( 'name', 'version','version_major',
                   'status', 'release_link', 'download_link', 'date', 'mdhash', 'filesize' );

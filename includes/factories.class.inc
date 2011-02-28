@@ -98,6 +98,7 @@ class Release_factory {
     if ($result == NULL) {
       return FALSE;
     }
+    $project = Project_factory::load_by_pid($result['pid']);
     return self::init_from_db($result,$project);
   }
   
