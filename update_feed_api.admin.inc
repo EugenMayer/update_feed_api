@@ -6,8 +6,8 @@
 
 function ufa_test() {
   //$p = update_feed_api_get_project('drupal_org', 'ctools', '6.x', TRUE);
-  $p = Project_factory::load_project('drupal_org','ctools', '6.x', TRUE, 'module');
-  dsm($p->get_release());
+  $p = Project_factory::load_project('kontextwork','daisydiff', '6.x', TRUE, 'module');
+  dsm($p->releases_to_array());
   return '';
 }
 

@@ -26,12 +26,12 @@ function update_feed_api_menu() {
       'access arguments' => array('administer site configuration'),
       'file' => 'update_feed_api.admin.inc'
      ),
-    'test' => array (
+/*    'test' => array (
       'type' => MENU_CALLBACK,
       'page callback'  => 'ufa_test',
       'access callback' => TRUE,
       
-      'file' => 'update_feed_api.admin.inc'
+      'file' => 'update_feed_api.admin.inc'*/
      )
   );
 }
