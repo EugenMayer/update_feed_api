@@ -97,9 +97,14 @@ class Update_feed implements IUpdate_feed {
 
   public function fetch_project_list() {
     $url = $this->host . $this->project_list_url();
-    $result = drupal_http_request($url);
+
+    $result = drupal_http_request($url, array(), 'GET', NULL, 2, variable_get('update_feed_api_fetch_timeout', 120.0));
     if ($result == FALSE) {
       throw new Exception("Could not fetch projects from $url");
+    }
+    if ($result->code == '-1') {
+      drupal_set_message("Error during http-request (error: {$result->error}). Maybe higher the fetch timeout (see administration page).", 'error');
+      return;
     }
 
     $tmp = file_directory_temp();
