@@ -1,4 +1,3 @@
-; $Id$
 name = "Update feed api"
 core = "6.x"
 description = "Provides API functions for downloading, storing and manipulating large project repositories such as cvs.drupal.org."

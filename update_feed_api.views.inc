@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 // Author: Daniel Wehner
 /**
