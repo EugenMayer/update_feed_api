@@ -101,6 +101,9 @@ class Update_feed_xmlreader extends Update_feed {
    */
   protected function fetch_and_save_all_projects($fetch_releases = TRUE, $save = TRUE) {
     $reader = new XMLReader();
+    if($this->project_list_store == '' || empty($this->project_list_store)) {
+      return;
+    }
     $reader->open($this->project_list_store);
     $errors = array();
     while ($reader->read()) {
