@@ -23,7 +23,7 @@ function update_feed_api_get_projects($server_key, $api_version, $load_releases 
  *  Load a specific projects of a specific api of a specific server
  */
 function update_feed_api_get_project($server_key, $short_name, $api_version, $load_releases = TRUE, $type = 'module') {
-  $project = Project_factory::load_project($server_key,$short_name, $api_version,$load_releases, $type);
+  $project = Project_factory::load_project($server_key, $short_name, $api_version, $load_releases, $type);
   return $project;
 }
 
@@ -39,17 +39,17 @@ function update_feed_api_api_get_project_by_pid($pid, $load_releases = TRUE) {
  * Get all available api version for this project
  */
 function update_feed_api_get_project_apis($server_key, $short_name) {
-  $query = db_select('update_feed_api_projects','ufap');
-  $query->condition( 'ufap.server_key' , $server_key);
-  $query->condition( 'ufap.short_name' , $short_name);
-  $query->fields('ufap',array('api_version'));
+  $query = db_select('update_feed_api_projects', 'ufap');
+  $query->condition('ufap.server_key', $server_key);
+  $query->condition('ufap.short_name', $short_name);
+  $query->fields('ufap', array('api_version'));
   $result = $query->execute();
   if ($result == NULL) {
     return FALSE;
   }
-  
+
   $apis = array();
-  foreach($result as $api) {
+  foreach ($result as $api) {
     $apis[] = $api;
   }
   return $apis;
@@ -72,11 +72,11 @@ function update_feed_api_update_feed($feed, $fetch_releases = FALSE) {
   $host = $feed['host'];
   $feedObj = new $class($host, $server_key, variable_get('update_feed_api_stepping', 10), NULL, _update_feed_api_allowed_apis());
   $feedObj->fetch_project_list();
-  while($status !== TRUE) {
+  while ($status !== TRUE) {
     $status = $feedObj->fetch_next_projects($fetch_releases, TRUE);
   }
 }
 
 function _update_feed_api_package_types() {
-  return array('module','libraries','core','theme','profile','theme_engine','translation');
+  return array('module', 'libraries', 'core', 'theme', 'profile', 'theme_engine', 'translation');
 }

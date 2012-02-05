@@ -10,13 +10,13 @@ require_once 'update_feed_api.api.inc';
 function update_feed_api_menu() {
   return array(
     'admin/build/refresh_update_feeds' => array(
-       'title' => 'Refresh update feeds',
-       'page callback' => 'drupal_get_form',
-       'page arguments' => array('update_feed_api_refresh_form'),
-       'access arguments' => array('administer site configuration'),
-       'file' => 'update_feed_api.admin.inc'
+      'title' => 'Refresh update feeds',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('update_feed_api_refresh_form'),
+      'access arguments' => array('administer site configuration'),
+      'file' => 'update_feed_api.admin.inc'
     ),
-    'admin/settings/update_feed_api_settings' => array (
+    'admin/settings/update_feed_api_settings' => array(
       'type' => MENU_NORMAL_ITEM,
       'title' => 'Update Feed API configuration',
       'description' => 'Configure update feed api',
@@ -24,7 +24,7 @@ function update_feed_api_menu() {
       'page arguments' => array('update_feed_api_admin_settings'),
       'access arguments' => array('administer site configuration'),
       'file' => 'update_feed_api.admin.inc'
-     ),
+    ),
 /*    'test' => array (
       'type' => MENU_CALLBACK,
       'page callback'  => 'ufa_test',
@@ -42,21 +42,21 @@ function _update_feed_api_get_feeds($feeds_to_fetch = FALSE) {
     $feeds_lines = array();
     $feeds_lines = preg_split("/((\r(?!\n))|((?<!\r)\n)|(\r\n))/", $settings);
     foreach ($feeds_lines as $feed) {
-      $feed = explode('|',$feed);
+      $feed = explode('|', $feed);
       $feed = array(
         'host' => $feed[0],
         'server_key' => $feed[1],
         'class' => $feed[2],
       );
-    
+
       // Dont take any feeds into the result, which are not expected
       if (is_array($feeds_to_fetch) && array_search($feed['server_key'], $feeds_to_fetch) === FALSE) {
         continue;
       }
-      
+
       // Validate
-      if(!class_exists($feed['class']) || array_search('IUpdate_feed', class_implements($feed['class'])) === FALSE) {
-        drupal_set_message('Cant fetch feed '.$feed['server_key']." as the class ({$feed['class']}) is missing, not loadable or does not implement the IUpdate_feed interface");
+      if (!class_exists($feed['class']) || array_search('IUpdate_feed', class_implements($feed['class'])) === FALSE) {
+        drupal_set_message('Cant fetch feed ' . $feed['server_key'] . " as the class ({$feed['class']}) is missing, not loadable or does not implement the IUpdate_feed interface");
         continue;
       }
       //else
@@ -66,30 +66,30 @@ function _update_feed_api_get_feeds($feeds_to_fetch = FALSE) {
   return $feeds;
 }
 
-function _update_feed_api_allowed_apis()  {
-  $settings = variable_get('update_feed_api_allowed_apis', array('7.x','6.x','5.x'));
+function _update_feed_api_allowed_apis() {
+  $settings = variable_get('update_feed_api_allowed_apis', array('7.x', '6.x', '5.x'));
   $settings = array_values($settings);
-  $settings = array_filter($settings,'_update_feed_api_checkbox_filter');
+  $settings = array_filter($settings, '_update_feed_api_checkbox_filter');
   return $settings;
 }
 
 function _update_feed_api_clear_tables($server_key = NULL) {
   $query_ufap = db_delete('update_feed_api_projects');
   $query_ufar = db_delete('update_feed_api_releases');
-  if($server_key == NULL) {
+  if ($server_key == NULL) {
     $query_ufap->execute();
     $query_ufar->execute();
   }
   else {
-    $query_ufap->condition('server_key',$server_key);
-    $query_ufar->condition('server_key',$server_key);
+    $query_ufap->condition('server_key', $server_key);
+    $query_ufar->condition('server_key', $server_key);
     $query_ufap->execute();
     $query_ufar->execute();
   }
 }
 
 function update_feed_api_autoload_info() {
-  $path = drupal_get_path('module','update_feed_api').'/includes/';
+  $path = drupal_get_path('module', 'update_feed_api') . '/includes/';
   return array(
     'FeedEntryContainer' => array(
       'file' => 'feedentrycontainer.class.inc',
@@ -130,16 +130,16 @@ function update_feed_api_autoload_info() {
     'Update_feed_xmlreader' => array(
       'file' => 'update_feed_xmlreader.class.inc',
       'file path' => $path,
-    ), 
-       
+    ),
+
   );
 }
 
 function _update_feed_api_checkbox_filter($i) {
-  if($i === 0) {
+  if ($i === 0) {
     return FALSE;
   }
-  
+
   return TRUE;
 }
 
@@ -163,22 +163,22 @@ function _udpate_feed_api_core_versions() {
 
 function update_feed_api_cron() {
   // should we run automatic updates at all?
-  if(variable_get('udpate_feed_api_cron', FALSE) === FALSE) {
+  if (variable_get('udpate_feed_api_cron', FALSE) === FALSE) {
     return;
   }
-  
+
   $run_every_x_hours = variable_get('udpate_feed_api_cron_schedule', 24);
   $last_run = variable_get('udpate_feed_api_cron_last', 0);
   // check if its time to run the updates
-  if (time() - $last_run >= 60*60*$run_every_x_hours) {
-     _update_feed_api_cron_run();
-     variable_set('udpate_feed_api_cron_last', time()); 
+  if (time() - $last_run >= 60 * 60 * $run_every_x_hours) {
+    _update_feed_api_cron_run();
+    variable_set('udpate_feed_api_cron_last', time());
   }
 }
 
 function _update_feed_api_cron_run() {
   $feeds = _update_feed_api_get_feeds();
-  foreach($feeds as $feed) {
+  foreach ($feeds as $feed) {
     _update_feed_api_clear_tables($feed['server_key']);
     update_feed_api_update_feed($feed, variable_get('udpate_feed_api_cron_fetch_releases', FALSE));
   }
