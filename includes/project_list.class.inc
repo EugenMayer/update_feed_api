@@ -7,6 +7,9 @@
 class Project_list {
   protected $max_count = NULL;
   protected $defaults = array();
+  /**
+   * @var Project[]
+   */
   protected $projects = array();
 
   public function __construct($defaults = array(), $max_count = NULL) {
@@ -35,11 +38,16 @@ class Project_list {
     }
     $this->projects = Project_factory::load_projects($server_key, $api_version, FALSE, $keyword, $type);
   }
-
+ /**
+  * @return Project[]
+  */
   public function get_projects() {
     return $this->projects;
   }
 
+  /**
+   * @param Project $p
+   */
   public function add_project($p) {
     $this->projects[$p->get_info('short_name') . '_' . $p->get_info('type')] = $p;
   }
@@ -49,15 +57,23 @@ class Project_list {
       unset($this->projects[$short_name]);
     }
   }
-
+  /**
+   * @param $short_name
+   * @param string $type
+   * @return bool
+   */
   public function has_project($short_name, $type = 'module') {
     return array_key_exists($short_name . "_$type", $this->projects);
   }
 
+  /**
+   * @param string $key
+   * @return array
+   */
   public function to_array($key = 'short_name') {
     $result = array();
     foreach ($this->projects as $p) {
-      $result[$p->get_info('short_name') . "_$type"] = $p->get_info($key);
+      $result[$p->get_info('short_name') . '_'.$p->type()] = $p->get_info($key);
     }
 
     return $result;
