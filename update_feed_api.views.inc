@@ -220,6 +220,28 @@ function update_feed_api_views_data() {
       'handler' => 'views_handler_sort',
     ),
   );
+  $data['update_feed_api_releases']['pid'] = array(
+    'title' => t('Pid'),
+    'description' => t('Project of the ufa release'),
+    'field' => array(
+      'handler' => 'views_handler_field_numeric',
+      'click sortable' => TRUE,
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_numeric',
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_numeric',
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+    'relationship' => array(
+      'title' => t('Project'),
+      'base' => 'update_feed_api_projects',
+      'base field' => 'pid',
+    ),
+  );
   $data['update_feed_api_releases']['name'] = array(
     'title' => t('name'),
     'field' => array(
