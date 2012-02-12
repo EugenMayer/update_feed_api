@@ -60,7 +60,7 @@ function update_feed_api_get_project_apis($server_key, $short_name) {
  * Running this for a project, the update-feed for this project is read
  * and all releases are extracted
  */
-function update_feed_api_fetch_releases($project, $api_version) {
+function update_feed_api_fetch_releases(Project $project, $api_version) {
   $feeds = _update_feed_api_get_feeds(array($project->server_key()));
   $fetcher = new $feeds[0]['class']($feeds[0]['host'], $feeds[0]['server_key'], 10, NULL, _update_feed_api_allowed_apis());
   $projects = $fetcher->fetch_project($project, array($api_version));
