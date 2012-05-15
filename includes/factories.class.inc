@@ -4,6 +4,9 @@
 // Copyright (c) 2010 KontextWork
 // Author: Eugen Mayer
 
+/**
+ * stores and an reads releases and projects to/from the database
+ */
 class Project_factory {
   static public function load_by_pid($pid, $load_release = TRUE) {
     $query = db_select('update_feed_api_projects', 'ufap');
