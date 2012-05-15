@@ -191,7 +191,7 @@ function _update_feed_api_get_schema() {
         'default' => '',
         'serialize' => TRUE
       ),
-      'is_recommended' => array(
+      'is_lastest_recommended' => array(
         'type' => 'int',
         'not null' => TRUE,
         'default' => 0,
@@ -238,7 +238,7 @@ function update_feed_api_update_6008() {
 function update_feed_api_update_6009() {
   $ret = array();
   db_add_field($ret, 'update_feed_api_projects', 'recommended_major', array('type' => 'varchar', 'not null' => FALSE, 'default' => NULL, 'length' => 5));
-  db_add_field($ret, 'update_feed_api_releases', 'is_recommended', array('type' => 'int', 'not null' => FALSE, 'default' => 0, 'length' => 2));
+  db_add_field($ret, 'update_feed_api_releases', 'is_lastest_recommended', array('type' => 'int', 'not null' => FALSE, 'default' => 0, 'length' => 2));
   db_add_field($ret, 'update_feed_api_releases', 'recommended_major', array('type' => 'varchar', 'not null' => FALSE, 'default' => NULL, 'length' => 5));
   db_add_field($ret, 'update_feed_api_releases', 'supported_majors', array('type' => 'varchar', 'not null' => FALSE, 'default' => NULL, 'length' => 5));
   db_add_field($ret, 'update_feed_api_releases', 'default_major', array('type' => 'varchar', 'not null' => FALSE, 'default' => NULL, 'length' => 5));
