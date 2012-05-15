@@ -88,7 +88,7 @@ class Release extends FeedEntryContainer {
     $v = $this->parse_version($v);
     switch ($type) {
       case 'mj':
-        if ($cv['mj'] < $vv['mj']) {
+        if ($cv['mj'] < $v['mj']) {
           return -1;
         }
         else if ($cv['mj'] > $v['mj']) {
