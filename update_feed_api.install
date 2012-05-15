@@ -98,12 +98,6 @@ function _update_feed_api_get_schema() {
         'length' => 100,
         'not null' => FALSE,
       ),
-      'recommended_major' => array(
-        'type' => 'varchar',
-        'length' => 100,
-        'not null' => FALSE,
-        'default' => NULL,
-      ),
     ),
     'primary key' => array('pid'),
     'unique keys' => array('server_relation' => array('short_name', 'server_key', 'api_version', 'type')),
@@ -196,24 +190,6 @@ function _update_feed_api_get_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
-      'recommended_major' => array(
-        'type' => 'varchar',
-        'length' => 100,
-        'not null' => FALSE,
-        'default' => NULL,
-      ),
-      'supported_majors' => array(
-        'type' => 'varchar',
-        'length' => 100,
-        'not null' => FALSE,
-        'default' => NULL,
-      ),
-      'default_major' => array(
-        'type' => 'varchar',
-        'length' => 100,
-        'not null' => FALSE,
-        'default' => NULL,
-      ),
     ),
     'primary key' => array('rid'),
     'unique keys' => array('project_relation' => array('rid', 'pid')),
@@ -237,11 +213,7 @@ function update_feed_api_update_6008() {
 
 function update_feed_api_update_6009() {
   $ret = array();
-  db_add_field($ret, 'update_feed_api_projects', 'recommended_major', array('type' => 'varchar', 'not null' => FALSE, 'default' => NULL, 'length' => 5));
   db_add_field($ret, 'update_feed_api_releases', 'is_lastest_recommended', array('type' => 'int', 'not null' => FALSE, 'default' => 0, 'length' => 2));
-  db_add_field($ret, 'update_feed_api_releases', 'recommended_major', array('type' => 'varchar', 'not null' => FALSE, 'default' => NULL, 'length' => 5));
-  db_add_field($ret, 'update_feed_api_releases', 'supported_majors', array('type' => 'varchar', 'not null' => FALSE, 'default' => NULL, 'length' => 5));
-  db_add_field($ret, 'update_feed_api_releases', 'default_major', array('type' => 'varchar', 'not null' => FALSE, 'default' => NULL, 'length' => 5));
   return $ret;
 }
 
