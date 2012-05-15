@@ -90,7 +90,7 @@ function _update_feed_api_get_schema() {
       ),
       'sourcecode_uri' => array(
         'type' => 'varchar',
-        'length' => 255,        
+        'length' => 255,
         'not null' => FALSE,
       ),
       'sourcecode_type' => array(
@@ -98,9 +98,16 @@ function _update_feed_api_get_schema() {
         'length' => 100,
         'not null' => FALSE,
       ),
+      'recommended_branch' => array(
+        'type' => 'varchar',
+        'length' => 100,
+        'not null' => FALSE,
+        'default' => NULL,
+      ),
+
     ),
     'primary key' => array('pid'),
-    'unique keys' => array('server_relation' =>  array( 'short_name', 'server_key', 'api_version','type') ),
+    'unique keys' => array('server_relation' => array('short_name', 'server_key', 'api_version', 'type')),
   );
   $schema['update_feed_api_releases'] = array(
     'description' => 'Stores releases',
@@ -175,7 +182,7 @@ function _update_feed_api_get_schema() {
         'type' => 'varchar',
         'length' => '50',
         'default' => '',
-      ),     
+      ),
       'filesize' => array(
         'type' => 'int',
         'not null' => TRUE,
@@ -185,23 +192,36 @@ function _update_feed_api_get_schema() {
         'default' => '',
         'serialize' => TRUE
       ),
+      'is_recommended' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
     ),
     'primary key' => array('rid'),
-    'unique keys' => array('project_relation' => array('rid', 'pid') ),
+    'unique keys' => array('project_relation' => array('rid', 'pid')),
   );
   return $schema;
 }
 
 function update_feed_api_update_6007() {
   $ret = array();
-  db_add_field($ret, 'update_feed_api_projects', 'sourcecode_uri', array('type' => 'varchar', 'not null' => FALSE, 'default' => "",'length' => 255));
-  db_add_field($ret, 'update_feed_api_projects', 'sourcecode_type', array('type' => 'varchar','not null' => FALSE, 'default' => "",'length' => 100));
+  db_add_field($ret, 'update_feed_api_projects', 'sourcecode_uri', array('type' => 'varchar', 'not null' => FALSE, 'default' => "", 'length' => 255));
+  db_add_field($ret, 'update_feed_api_projects', 'sourcecode_type', array('type' => 'varchar', 'not null' => FALSE, 'default' => "", 'length' => 100));
   return $ret;
 }
 
 function update_feed_api_update_6008() {
   $ret = array();
-  db_add_field($ret, 'update_feed_api_projects', 'type', array('type' => 'varchar', 'not null' => FALSE, 'default' => "",'length' => 15));
+  db_add_field($ret, 'update_feed_api_projects', 'type', array('type' => 'varchar', 'not null' => FALSE, 'default' => "", 'length' => 15));
   db_query("ALTER TABLE  {update_feed_api_projects} DROP INDEX  `server_relation` , ADD UNIQUE  `server_relation` (  `short_name` ,  `server_key` ,  `api_version` ,  `type` )");
   return $ret;
 }
+
+function update_feed_api_update_6009() {
+  $ret = array();
+  db_add_field($ret, 'update_feed_api_projects', 'recommended_branch', array('type' => 'varchar', 'not null' => FALSE, 'default' => NULL, 'length' => 5));
+  db_add_field($ret, 'update_feed_api_releases', 'is_recommended', array('type' => 'int', 'not null' => FALSE, 'default' => 0, 'length' => 2));
+  return $ret;
+}
+
