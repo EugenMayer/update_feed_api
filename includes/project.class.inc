@@ -6,7 +6,13 @@
 
 // A genera Drupal Project "Project" with its meta data
 class Project extends FeedEntryContainer {
+  /**
+   * @var Release[]
+   */
   protected $releases = array();
+  /**
+   * @var string
+   */
   protected $server_key = NULL;
 
   public function __construct($infos, $terms, $server_key, $load_release = TRUE) {
@@ -35,14 +41,27 @@ class Project extends FeedEntryContainer {
   }
 
   /**
-   * @param null $version
-   * @return mixed
+   * @return Release[] keyed by the version string
+   */
+  public function get_releases() {
+    return $this->releases;
+  }
+
+  /**
+   * @param string|null $version
+   * @return Release
    * @deprecated
    */
   public function get_release($version = NULL) {
     return $this->get_release_by_version($version);
   }
 
+  /**
+   * @param $version
+   * @return Release
+   * @throws Exception
+   * returns a release identified by its version string
+   */
   public function get_release_by_version($version) {
     foreach ($this->releases as $release) {
       if ($release->get_info('version') == $version) {
@@ -191,15 +210,17 @@ class Project extends FeedEntryContainer {
     return $this->infos['sourcecode_uri'];
   }
 
+  /**
+   * sorts releases
+   */
   protected function sort_releases() {
     usort($this->releases, array($this, 'compare_releases'));
   }
 
   /**
-   * @param $a
-   * @param $b
+   * @param Release $a
+   * @param Release $b
    * @return mixed
-   * internal method to sort releases by version
    */
   protected function compare_releases($a, $b) {
     return $a->compare_versions($b->get_info('version'), $a->get_info('version'), 'mj');

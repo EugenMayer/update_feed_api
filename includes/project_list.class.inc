@@ -57,6 +57,10 @@ class Project_list {
   public function to_array($key = 'short_name') {
     $result = array();
     foreach ($this->projects as $p) {
+      /**
+       * @var Project $p
+       */
+      $type = $p->type();
       $result[$p->get_info('short_name') . "_$type"] = $p->get_info($key);
     }
 

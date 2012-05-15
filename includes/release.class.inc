@@ -6,6 +6,9 @@
 
 // A general Drupal Project release with its meta data
 class Release extends FeedEntryContainer {
+  /**
+   * @var Project
+   */
   protected $parent_project = NULL;
 
   public function __construct($infos, $terms, $project) {
@@ -58,7 +61,7 @@ class Release extends FeedEntryContainer {
     foreach ($releases as $ver => $r_key) {
       // if current verison is smaller then the checked one
       if ($this->compare_versions($cv, $ver, $type) == -1) {
-        // and the curretn result is smaller then the checked one
+        // and the currenT result is smaller then the checked one
         if (
           $result == FALSE ||
           $this->compare_versions($result['ver'], $ver, $type) == -1
@@ -70,7 +73,7 @@ class Release extends FeedEntryContainer {
       }
     }
     if ($result != FALSE) {
-      return $this->parent_project->get_release($result['key']);
+      return $this->parent_project->get_release_by_version($result['key']);
     }
     // else
     return FALSE;
@@ -171,6 +174,44 @@ class Release extends FeedEntryContainer {
     return $this->infos['release_link'];
   }
 
+  /**
+   * @return bool
+   * returns true, if this release is in the recommoneded_major AND is the latest recommended release
+   */
+  public function is_latest_recommended($refresh = FALSE) {
+    if($refresh) {
+      $rl = new Release_list(NULL, $this->parent_project);
+      $rl->filter_by_major($this->parent_project->get_info("recommended_major"))->sort_by_version();
+      // @TODO: mabye make a better compare here
+      if($rl->last() == $this) {
+        $this->infos['is_latest_recommended'] = TRUE;
+      }
+      // else
+      $this->infos['is_latest_recommended'] = FALSE;
+    }
+    // else
+    return $this->infos['is_latest_recommended'];
+  }
+
+  /**
+   * @return bool
+   * returns true, if this release is on the recommended branch
+   */
+  public function is_recommended() {
+    return $this->get_info("version_major") == $this->parent_project->get_info("recommonded_version");
+  }
+
+  public function save() {
+    if($this->parent_project->full_fetched() AND $this->is_recommended()) {
+      // this refreshes if this release is the latest recommonded and stores it internally, so it can now get persisted up2date
+      $this->is_latest_recommended(TRUE);
+    }
+    else {
+      throw new Exception("A release is about to get saved, but the project is yet not full fetched. This should never happen");
+    }
+    parent::save();
+  }
+
   protected function validate_terms($terms) {
     $req = array();
     $diff = array_diff($req, array_keys($terms));
@@ -201,4 +242,6 @@ class Release extends FeedEntryContainer {
     // else
     return FALSE;
   }
+
+
 }
