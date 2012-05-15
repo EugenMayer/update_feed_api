@@ -25,8 +25,8 @@ class Project extends FeedEntryContainer {
   }
 
   /**
-   * @param $infos
-   * @param $terms
+   * @param array $infos
+   * @param array $terms
    * add a new release to the project. This will not store it in the DB
    */
   public function add_release($infos, $terms) {

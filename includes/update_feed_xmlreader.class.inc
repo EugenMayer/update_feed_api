@@ -6,14 +6,26 @@ class Update_feed_xmlreader extends Update_feed {
   public function __construct($host, $server_key, $stepping = 5, $projects_count = NULL, $allowed_api_versions = array('7.x', '6.x', '5.x')) {
     parent::__construct($host, $server_key, $stepping, $projects_count, $allowed_api_versions);
   }
-
-  // with the sax parser we dont support ranged queries, so we have to fetch it all in one step
+  /**
+   * @param bool $fetch_releases
+   * @param bool $save
+   * @return bool
+   * with the sax parser we dont support ranged queries, so we have to fetch it all in one step
+   */
   public function fetch_next_projects($fetch_releases = TRUE, $save = TRUE) {
     // as we dont support fetching and not saving, we force this
     $this->fetch_and_save_all_projects($fetch_releases, TRUE);
     return TRUE;
   }
 
+  /**
+   * @param array $project_shortinfo
+   * @param bool $fetch_releases
+   * @param bool $save
+   * @override
+   * @return array
+   * fetches the detailed project feeds and if needed, releases
+   */
   protected function fetch_project_details($project_shortinfo, $fetch_releases = TRUE, $save = FALSE) {
     $projects_by_api = array();
     if (!array_key_exists('api_versions', $project_shortinfo)) {
@@ -70,6 +82,10 @@ class Update_feed_xmlreader extends Update_feed {
     return $projects_by_api;
   }
 
+  /**
+   * @param array $releases assoc array of releases
+   * @param Project $project_obj
+   */
   protected function add_releases($releases, &$project_obj) {
     foreach ($releases as $release) {
       $terms = $release['terms'];
@@ -78,6 +94,11 @@ class Update_feed_xmlreader extends Update_feed {
     }
   }
 
+  /**
+   * @param bool $fetch_releases
+   * @param bool $save
+   * fetches the undetailed list of projects and stores them in the db
+   */
   protected function fetch_and_save_all_projects($fetch_releases = TRUE, $save = TRUE) {
     $reader = new XMLReader();
     $reader->open($this->project_list_store);
@@ -140,6 +161,11 @@ class Update_feed_xmlreader extends Update_feed {
     return TRUE;
   }
 
+  /**
+   * @param $reader
+   * @return array|bool
+   * parses a project xml entry
+   */
   protected function xml_handle_project($reader) {
     $project = array();
     while ($reader->read()) {
@@ -174,6 +200,11 @@ class Update_feed_xmlreader extends Update_feed {
     return FALSE;
   }
 
+  /**
+   * @param $reader
+   * @return array|bool
+   * parsing a SCM xml entry
+   */
   protected function xml_handle_sourcecode($reader) {
     $sourcecode = array();
     while ($reader->read()) {
@@ -190,6 +221,11 @@ class Update_feed_xmlreader extends Update_feed {
     return FALSE;
   }
 
+  /**
+   * @param $reader
+   * @return array|bool
+   * parsing a list of releases
+   */
   protected function xml_handle_releases($reader) {
     $releases = array();
     while ($reader->read()) {
@@ -206,6 +242,11 @@ class Update_feed_xmlreader extends Update_feed {
     return FALSE;
   }
 
+  /**
+   * @param $reader
+   * @return array|bool
+   * parsing a RELEASE xml entry
+   */
   protected function xml_handle_release($reader) {
     $release = array('terms' => array());
     while ($reader->read()) {
@@ -229,6 +270,11 @@ class Update_feed_xmlreader extends Update_feed {
     return FALSE;
   }
 
+  /**
+   * @param $reader
+   * @return array|bool
+   * parse the TERM xml entry
+   */
   protected function xml_handle_release_terms($reader) {
     $terms = array();
     while ($reader->read()) {
@@ -245,6 +291,11 @@ class Update_feed_xmlreader extends Update_feed {
     return FALSE;
   }
 
+  /**
+   * @param $reader
+   * @return array|bool
+   * parse the specific term informations
+   */
   protected function xml_handle_release_term($reader) {
     $term = array('name' => '', 'value' => '');
     while ($reader->read()) {
