@@ -198,13 +198,15 @@ class Release extends FeedEntryContainer {
    * returns true, if this release is on the recommended branch
    */
   public function is_recommended() {
-    return $this->get_info("version_major") == $this->parent_project->get_info("recommonded_version");
+    return $this->get_info("version_major") == $this->parent_project->get_info("recommended_major");
   }
 
   public function save() {
-    if($this->parent_project->full_fetched() AND $this->is_recommended()) {
+    if($this->parent_project->full_fetched()) {
       // this refreshes if this release is the latest recommonded and stores it internally, so it can now get persisted up2date
-      $this->is_latest_recommended(TRUE);
+      if($this->is_recommended()) {
+        //$this->is_latest_recommended(TRUE);
+      }
     }
     else {
       throw new Exception("A release is about to get saved, but the project is yet not full fetched. This should never happen");

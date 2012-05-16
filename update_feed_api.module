@@ -26,13 +26,12 @@ function update_feed_api_menu() {
       'access arguments' => array('administer site configuration'),
       'file' => 'update_feed_api.admin.inc'
     ),
-/*    'test' => array (
+    'test' => array (
       'type' => MENU_CALLBACK,
       'page callback'  => 'ufa_test',
       'access callback' => TRUE,
       'file' => 'update_feed_api.admin.inc'
-     )
-*/
+     ),
   );
 }
 
@@ -43,7 +42,7 @@ function _update_feed_api_get_feeds($feeds_to_fetch = FALSE) {
     $feeds_lines = array();
     $feeds_lines = preg_split("/((\r(?!\n))|((?<!\r)\n)|(\r\n))/", $settings);
     foreach ($feeds_lines as $feed) {
-      if(trim($feed) == '') { // ignore blanc lines
+      if (trim($feed) == '') { // ignore blanc lines
         continue;
       }
       $feed = explode('|', $feed);
@@ -129,6 +128,10 @@ function update_feed_api_autoload_info() {
     ),
     'Project_list' => array(
       'file' => 'project_list.class.inc',
+      'file path' => $path,
+    ),
+    'Release_list' => array(
+      'file' => 'release_list.class.inc',
       'file path' => $path,
     ),
     'Update_feed_xmlreader' => array(

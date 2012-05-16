@@ -185,7 +185,7 @@ function _update_feed_api_get_schema() {
         'default' => '',
         'serialize' => TRUE
       ),
-      'is_lastest_recommended' => array(
+      'is_latest_recommended' => array(
         'type' => 'int',
         'not null' => TRUE,
         'default' => 0,
@@ -211,9 +211,9 @@ function update_feed_api_update_6008() {
   return $ret;
 }
 
-function update_feed_api_update_6009() {
+function update_feed_api_update_6010() {
   $ret = array();
-  db_add_field($ret, 'update_feed_api_releases', 'is_lastest_recommended', array('type' => 'int', 'not null' => FALSE, 'default' => 0, 'length' => 2));
+  db_add_field($ret, 'update_feed_api_releases', 'is_latest_recommended', array('type' => 'int', 'not null' => FALSE, 'default' => 0, 'length' => 2));
   return $ret;
 }
 

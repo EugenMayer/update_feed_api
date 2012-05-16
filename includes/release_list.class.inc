@@ -16,7 +16,7 @@ class Release_list {
    * @param Release[]|null $releases optional list of releases to operate on
    * @param Project $project if set, releases of this project are used as the search bas
    */
-  public function __construct($releases = NULL, $project = NULL) {
+  public function __construct(Release $releases = NULL, Project $project = NULL) {
     if ($releases == NULL AND $project == NULL) {
       throw new Exception("Please the the search base ( releases ) or the project for a Release_list");
     }

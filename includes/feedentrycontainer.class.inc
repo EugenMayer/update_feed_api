@@ -41,7 +41,7 @@ abstract class FeedEntryContainer {
       return $this->infos[$key];
     }
 
-    throw new Exception("No such info in Release ($key)");
+    throw new Exception("No such info in Class ($key)");
     return FALSE;
   }
 
