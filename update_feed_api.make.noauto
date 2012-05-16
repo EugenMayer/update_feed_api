@@ -45,4 +45,4 @@ projects[update_feed_api][subdir] = "custom"
 projects[update_feed_api][download][branch] = "master"
 
 ; Enable modules
-;; drush en update_feed_api admin_menu views devel -y
+;; drush en update_feed_api admin_menu views views_ui devel -y

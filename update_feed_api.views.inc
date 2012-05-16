@@ -452,5 +452,22 @@ function update_feed_api_views_data() {
     ),
   );
 
+  $data['update_feed_api_releases']['is_latest_recommended'] = array(
+    'title' => t('Is latest recommended'),
+    'field' => array(
+      'handler' => 'views_handler_field_boolean',
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_numeric',
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_boolean_operator',
+      'type' => 'yes-no',
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+  );
+
   return $data;
 }
