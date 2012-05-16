@@ -5,9 +5,14 @@
 // Author: Eugen Mayer
 
 function ufa_test() {
-  $p = update_feed_api_get_project('drupal_org', 'ctools', '6.x', TRUE);
-  //$p = Project_factory::load_project('kontextwork', 'daisydiff', '6.x', TRUE, 'module');
-  dsm($p->releases_to_array());
+  //$p = update_feed_api_get_project('drupal_org', 'features', '6.x', TRUE);
+  //dsm($p);
+  $p = Project_factory::load_project('kontextwork', 'daisydiff', '6.x', TRUE, 'module');
+  $l = new Release_list(NULL, $p);
+  dsm($l->filter_by_major("5")->sort_by_version()->last());
+  update_feed_api_fetch_releases($p, "6.x");
+  dsm($p);
+  //dsm($p->releases_to_array());
   return '';
 }
 

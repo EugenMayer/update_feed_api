@@ -37,6 +37,7 @@ class Release_list {
   }
 
   public function filter_by_major($mj) {
+    $this->ensure_searchbase();
     foreach ($this->releases as $version => $r) {
       if ($r->get_info("version_major") != $mj) {
         unset($this->releases[$version]);
@@ -54,12 +55,19 @@ class Release_list {
     return $a->compare_versions($b->get_info('version'), $a->get_info('version'), 'mj');
   }
 
+  /**
+   * @return Release_list
+   * the most recent release will be on index 0, first position
+   */
   public function sort_by_version() {
     $this->ensure_searchbase();
     usort($this->releases, array($this, 'compare_release_versions'));
     return $this;
   }
 
+  /**
+   * @return Release[]
+   */
   public function get_releases() {
     return $this->releases;
   }
@@ -68,8 +76,8 @@ class Release_list {
    * @return Release
    */
   public function first() {
-    if (is_array($this->release) && count($this->release) > 0) {
-      return $this->release[0];
+    if (is_array($this->releases) && count($this->releases) > 0) {
+      return $this->releases[0];
     }
     return NULL;
   }
@@ -78,8 +86,8 @@ class Release_list {
    * @return Release
    */
   public function last() {
-    if (is_array($this->release) && count($this->release) > 0) {
-      return $this->release[count($this->release) - 1];
+    if (is_array($this->releases) && count($this->releases) > 0) {
+      return $this->releases[count($this->releases) - 1];
     }
     return NULL;
   }

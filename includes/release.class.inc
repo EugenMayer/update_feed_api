@@ -179,15 +179,16 @@ class Release extends FeedEntryContainer {
    * returns true, if this release is in the recommoneded_major AND is the latest recommended release
    */
   public function is_latest_recommended($refresh = FALSE) {
-    if($refresh) {
+    if ($refresh) {
       $rl = new Release_list(NULL, $this->parent_project);
-      $rl->filter_by_major($this->parent_project->get_info("recommended_major"))->sort_by_version();
-      // @TODO: mabye make a better compare here
-      if($rl->last() == $this) {
-        $this->infos['is_latest_recommended'] = TRUE;
+      $rl->filter_by_major($this->parent_project->get_info("recommended_major"))
+        ->sort_by_version();
+      if ($rl->first()->get_info("name") == $this->get_info("name")) {
+        $this->infos['is_latest_recommended'] = 1;
       }
-      // else
-      $this->infos['is_latest_recommended'] = FALSE;
+      else {
+        $this->infos['is_latest_recommended'] = 0;
+      }
     }
     // else
     return $this->infos['is_latest_recommended'];
@@ -202,14 +203,17 @@ class Release extends FeedEntryContainer {
   }
 
   public function save() {
-    if($this->parent_project->full_fetched()) {
+    if ($this->parent_project->full_fetched()) {
       // this refreshes if this release is the latest recommonded and stores it internally, so it can now get persisted up2date
-      if($this->is_recommended()) {
-        //$this->is_latest_recommended(TRUE);
+      if ($this->is_recommended()) {
+        $this->is_latest_recommended(TRUE);
+      }
+      else {
+        $this->infos['is_latest_recommended'] = 0;
       }
     }
     else {
-      throw new Exception("A release is about to get saved, but the project is yet not full fetched. This should never happen");
+      throw new Exception("A release is about to get saved, but the project is not yet fully fetched. This should never happen");
     }
     parent::save();
   }
