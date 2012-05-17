@@ -1,17 +1,21 @@
 <?php
-// $Id$
-
 // Copyright (c) 2010 KontextWork
 // Author: Eugen Mayer
 
-// A general Drupal Project release with its meta data
+/**
+ * A general Drupal Project release with its meta data
+ */
 class Release extends FeedEntryContainer {
   /**
    * @var Project
    */
   protected $parent_project = NULL;
-
-  public function __construct($infos, $terms, $project) {
+  /**
+   * @param array $infos
+   * @param array $terms
+   * @param Project $project Parent project
+   */
+  public function __construct($infos, $terms, Project $project) {
     parent::__construct($infos, $terms);
     $this->parent_project = $project;
     $this->dest_table = 'update_feed_api_releases';
@@ -179,10 +183,17 @@ class Release extends FeedEntryContainer {
    * returns true, if this release is in the recommoneded_major AND is the latest recommended release
    */
   public function is_latest_recommended($refresh = FALSE) {
+    $mj = NULL;
+    try {
+      $mj = $this->parent_project->get_info("recommended_major");
+    }
+    catch(Exception $e) {
+      // no recommended data
+      return FALSE;
+    }
     if ($refresh) {
       $rl = new Release_list(NULL, $this->parent_project);
-      $rl->filter_by_major($this->parent_project->get_info("recommended_major"))
-        ->sort_by_version();
+      $rl->filter_by_major($mj)->sort_by_version();
       if ($rl->first()->get_info("name") == $this->get_info("name")) {
         $this->infos['is_latest_recommended'] = 1;
       }
@@ -199,7 +210,14 @@ class Release extends FeedEntryContainer {
    * returns true, if this release is on the recommended branch
    */
   public function is_recommended() {
-    return $this->get_info("version_major") == $this->parent_project->get_info("recommended_major");
+    try {
+      $mj = $this->parent_project->get_info("recommended_major");
+    }
+    catch(Exception $e) {
+      // no recommended data
+      return FALSE;
+    }
+    return $this->get_info("version_major") == $mj;
   }
 
   public function save() {
@@ -248,6 +266,4 @@ class Release extends FeedEntryContainer {
     // else
     return FALSE;
   }
-
-
 }
