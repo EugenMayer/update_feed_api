@@ -60,6 +60,7 @@ class Release extends FeedEntryContainer {
    */
   public function has_newer_release($type) {
     $releases = $this->parent_project->releases_to_array('version');
+
     $result = FALSE;
     $cv = $this->infos['version'];
     foreach ($releases as $ver => $r_key) {
@@ -73,7 +74,6 @@ class Release extends FeedEntryContainer {
           // set the result
           $result = array('ver' => $ver, 'key' => $r_key);
         }
-        ;
       }
     }
     if ($result != FALSE) {
@@ -249,7 +249,7 @@ class Release extends FeedEntryContainer {
       'status', 'release_link', 'download_link', 'date', 'mdhash', 'filesize');
     $diff = array_diff($req, array_keys($infos));
     if (count($diff) > 0) {
-      throw new Exception('Not all required infos set from release. Missing: (' . join(',', $diff) . ')');
+      throw new Exception('Not all required infos set from release of '.$infos['name'].'. Missing: (' . join(',', $diff) . ')');
     }
   }
 
