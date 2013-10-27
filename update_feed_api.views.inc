@@ -28,6 +28,11 @@ function update_feed_api_views_data() {
     'sort' => array(
       'handler' => 'views_handler_sort',
     ),
+    'relationship' => array(
+      'title' => t('Release'),
+      'base' => 'update_feed_api_releases',
+      'base field' => 'pid',
+    ),
   );
   $data['update_feed_api_projects']['server_key'] = array(
     'title' => t('server_key'),
